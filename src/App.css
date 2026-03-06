@@ -1,0 +1,19 @@
+:root {
+  color-scheme: light dark;
+  background-color: #242424;
+  color: rgba(255, 255, 255, 0.87);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    background-color: #ffffff;
+    color: #213547;
+  }
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
