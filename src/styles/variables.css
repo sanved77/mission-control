@@ -1,0 +1,9 @@
+/* App and sidebar color palette – use var(--name) in components */
+:root {
+  --sidebar-bg: #1a2234;
+  --sidebar-text: #e0e6f0;
+  --sidebar-nav-text: #94a3b8;
+  --sidebar-accent: #00a3ff;
+  --sidebar-selected-bg: #2c3e5b;
+  --sidebar-heading: #ffffff;
+}

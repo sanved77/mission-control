@@ -2,4 +2,25 @@ html,
 body {
   margin: 0;
   height: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Resize handle: full-height vertical strip only, no default diagonal graphic */
+.mission-control-resize-handle {
+  background-image: none !important;
+  background: none !important;
+  padding: 0 !important;
+  transition: background-color 0.15s ease;
+}
+.mission-control-resize-handle.react-resizable-handle-e,
+.mission-control-resize-handle.react-resizable-handle-w {
+  top: 0 !important;
+  bottom: 0 !important;
+  margin-top: 0 !important;
+  height: 100% !important;
+  width: 8px !important;
+  transform: none !important;
+}
+.mission-control-resize-handle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
 }
