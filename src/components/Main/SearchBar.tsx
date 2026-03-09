@@ -1,5 +1,4 @@
 import { Box, TextField } from '@mui/material'
-import Bolt from '@mui/icons-material/Bolt'
 
 const SEARCHBAR_HEIGHT = 65
 

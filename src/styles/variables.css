@@ -6,4 +6,14 @@
   --sidebar-accent: #00a3ff;
   --sidebar-selected-bg: #2c3e5b;
   --sidebar-heading: #ffffff;
+
+  /* ScratchPad / editor theme */
+  --scratchpad-toolbar-bg: #1e2128;
+  --scratchpad-editor-bg: #1e2128;
+  --scratchpad-btn-primary-bg: #007acc;
+  --scratchpad-btn-primary-text: #ffffff;
+  --scratchpad-text: #e0e0e0;
+  --scratchpad-text-muted: #a0a0a0;
+  --scratchpad-line-number: #858585;
+  --scratchpad-separator: #3c3c3c;
 }

@@ -12,11 +12,10 @@ export interface SidebarItemConfig {
   Icon: SvgIconComponent
 }
 
-/** Nav items for sidebar. path is '#' for now; replace with React Router paths later. */
 export const SIDEBAR_ITEMS: SidebarItemConfig[] = [
-  { id: 'today', label: 'Today', path: '#', Icon: Today },
-  { id: 'scratchpad', label: 'Scratchpad', path: '#', Icon: EditNote },
-  { id: 'projects', label: 'Projects', path: '#', Icon: Folder },
-  { id: 'tasks', label: 'Tasks', path: '#', Icon: TaskAlt },
-  { id: 'settings', label: 'Settings', path: '#', Icon: Settings },
+  { id: 'today', label: 'Today', path: '/', Icon: Today },
+  { id: 'scratchpad', label: 'Scratchpad', path: '/scratchpad', Icon: EditNote },
+  { id: 'projects', label: 'Projects', path: '/projects', Icon: Folder },
+  { id: 'tasks', label: 'Tasks', path: '/tasks', Icon: TaskAlt },
+  { id: 'settings', label: 'Settings', path: '/settings', Icon: Settings },
 ]

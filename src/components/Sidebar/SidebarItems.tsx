@@ -1,18 +1,20 @@
 import { List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import { NavLink, useLocation } from 'react-router-dom'
 import { SIDEBAR_ITEMS } from './sidebarNavItems'
 
-const activeId = 'projects'
-
 export default function SidebarItems() {
+  const { pathname } = useLocation()
+
   return (
     <List disablePadding dense sx={{ pt: 2.5 }}>
       {SIDEBAR_ITEMS.map(({ id, label, path, Icon }) => {
-        const isActive = id === activeId
+        const isActive = path === '/' ? pathname === '/' : pathname === path
         return (
           <ListItemButton
             key={id}
-            component="a"
-            href={path}
+            component={NavLink}
+            to={path}
+            end={path === '/'}
             sx={{
               borderRadius: '20px',
               mb: 0,
