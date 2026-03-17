@@ -78,11 +78,29 @@ export default function TasksPanel({ tasks, projectId, onTaskComplete, addTask }
             Tasks
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Chip label={`${activeCount} Active`} size="small" sx={{ bgcolor: 'var(--scratchpad-toolbar-bg)', color: 'var(--scratchpad-text-muted)' }} />
-            <Chip label={`${completed} Completed`} size="small" sx={{ bgcolor: 'var(--scratchpad-toolbar-bg)', color: 'var(--scratchpad-text-muted)' }} />
+            <Chip
+              label={`${activeCount} Active`}
+              size="small"
+              sx={{
+                bgcolor: 'var(--scratchpad-toolbar-bg)',
+                color: 'var(--projects-metric-color)',
+                border: '1px solid var(--projects-metric-color)',
+                borderRadius: '16px',
+              }}
+            />
+            <Chip
+              label={`${completed} Completed`}
+              size="small"
+              sx={{
+                bgcolor: 'var(--scratchpad-toolbar-bg)',
+                color: 'var(--projects-metric-color)',
+                border: '1px solid var(--projects-metric-color)',
+                borderRadius: '16px',
+              }}
+            />
           </Box>
         </Box>
-        <Typography variant="body2" sx={{ color: 'var(--scratchpad-text-muted)', mb: 2 }}>
+        <Typography variant="body2" sx={{ color: 'var(--projects-metric-color)', mb: 2 }}>
           {percent}% complete
         </Typography>
         <Box sx={{ flex: 1, overflow: 'auto' }}>

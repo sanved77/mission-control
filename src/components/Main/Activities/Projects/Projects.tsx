@@ -19,7 +19,7 @@ export default function Projects() {
         display: 'flex',
         flexDirection: 'row',
         height: '100%',
-        backgroundColor: 'var(--scratchpad-editor-bg)',
+        backgroundColor: 'var(--projects-bg)',
         color: 'var(--scratchpad-text)',
         overflow: 'hidden',
       }}

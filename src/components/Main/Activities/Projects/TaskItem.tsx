@@ -63,9 +63,10 @@ export default function TaskItem({ task, taskMap, indentLevel = 0, onTaskComplet
       <Box
         sx={{
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           gap: 1,
           pl: indentLevel * 3,
+          border: '1px solid transparent',
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -74,17 +75,20 @@ export default function TaskItem({ task, taskMap, indentLevel = 0, onTaskComplet
           size="small"
           checked={completed}
           disabled={hasSubTasks}
-          onChange={hasSubTasks ? undefined : () => onTaskComplete?.(task.id, !completed)}
           icon={<CheckBoxOutlineBlankIcon sx={{ color: 'var(--scratchpad-text-muted)' }} />}
+          onChange={hasSubTasks ? undefined : () => onTaskComplete?.(task.id, !completed)}
           checkedIcon={<CheckBoxIcon sx={{ color: '#4caf50' }} />}
-          sx={{ p: 0.25, mt: 0.25 }}
+          sx={{ p: 0.25, alignSelf: 'center' }}
         />
         <Box sx={{ minWidth: 0 }}>
           <Typography
-            variant="body2"
+            variant="body1"
             sx={{
-              color: completed ? 'var(--scratchpad-text-muted)' : 'var(--scratchpad-text)',
+              color: isHovered 
+                ? 'var(--projects-metric-color)' : completed 
+                ? 'var(--scratchpad-text-muted)' : 'var(--scratchpad-text)',
               textDecoration: completed ? 'line-through' : 'none',
+              
             }}
           >
             {task.content}
@@ -96,17 +100,19 @@ export default function TaskItem({ task, taskMap, indentLevel = 0, onTaskComplet
           )}
         </Box>
         {showAddIcon && (
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation()
-              addMode?.setTaskAddMode(task.id)
-            }}
-            sx={{ color: 'var(--scratchpad-text-muted)', p: 0.25, mt: 0.25 }}
-            aria-label="Add subtask"
-          >
-            <Add sx={{ fontSize: 18 }} />
-          </IconButton>
+          <>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation()
+                addMode?.setTaskAddMode(task.id)
+              }}
+              sx={{ color: 'var(--scratchpad-text-muted)', p: 0.25, mt: 0.25 }}
+              aria-label="Add subtask"
+            >
+              <Add sx={{ fontSize: 18 }} />
+            </IconButton>
+          </>
         )}
       </Box>
       {sortedChildren.map((childTask) => (
