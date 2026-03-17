@@ -6,13 +6,16 @@ import type { Task } from '../../../../types/projects'
 import { isCompleted } from '../../../../utils/taskCompletion'
 
 function getTaskCompletionPercent(task: Task, taskMap: Map<string, Task>): { completed: number; total: number } {
-  let completed = isCompleted(task, taskMap) ? 1 : 0
-  let total = 1
+  const hasSubTasks = task.subTasks != null && task.subTasks.length > 0
+  let completed = hasSubTasks 
+    ? 0 : isCompleted(task, taskMap) 
+    ? 1 : 0
+  let total = hasSubTasks ? 0 : 1
   for (const id of task.subTasks ?? []) {
     const child = taskMap.get(id)
     if (child) {
       const sub = getTaskCompletionPercent(child, taskMap)
-      completed += sub.completed
+      completed += hasSubTasks ? sub.completed : 0
       total += sub.total
     }
   }
