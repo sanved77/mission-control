@@ -11,11 +11,12 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
-    "@monaco-editor/react": "^4.7.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/inter": "^5.2.8",
+    "@monaco-editor/react": "^4.7.0",
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
+    "framer-motion": "^12.36.0",
     "lodash": "^4.17.23",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
