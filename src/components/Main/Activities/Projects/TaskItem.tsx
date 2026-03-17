@@ -1,9 +1,21 @@
 import { useContext, useState } from "react";
 import { motion } from "framer-motion";
-import { Box, Checkbox, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import Add from "@mui/icons-material/Add";
+import Delete from "@mui/icons-material/Delete";
 import type { Task } from "../../../../types/projects";
 import { isCompleted } from "../../../../utils/taskCompletion";
 import { TaskAddModeContext } from "./TaskAddModeContext";
@@ -50,6 +62,7 @@ export interface TaskItemProps {
   onTaskComplete?: (taskId: string, isComplete: boolean) => void;
   onAddTask?: (content: string, parentTaskId: string) => void;
   onEditTask?: (taskId: string, content: string) => void;
+  onDeleteTask?: (taskId: string) => void;
   projectId?: string;
 }
 
@@ -60,10 +73,12 @@ export default function TaskItem({
   onTaskComplete,
   onAddTask,
   onEditTask,
+  onDeleteTask,
   projectId,
 }: TaskItemProps) {
   const addMode = useContext(TaskAddModeContext);
   const [isHovered, setIsHovered] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const isEditMode = addMode?.editTaskId === task.id;
   const subTaskIds = task.subTasks ?? [];
   const hasSubTasks = subTaskIds.length > 0;
@@ -77,6 +92,7 @@ export default function TaskItem({
     : null;
   const sortedChildren = sortChildTasks(subTaskIds, taskMap);
   const showAddIcon = isHovered && addMode?.setTaskAddMode && !isEditMode;
+  const showDeleteButton = isHovered && !isEditMode && onDeleteTask;
 
   return (
     <Box
@@ -171,31 +187,79 @@ export default function TaskItem({
           )}
         </Box>
         {showAddIcon && (
-          <>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                addMode?.setTaskAddMode(task.id);
-              }}
-              sx={{
-                color: "#ffffff",
-                p: 0.25,
-                mt: 0.25,
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              addMode?.setTaskAddMode(task.id);
+            }}
+            sx={{
+              color: "#ffffff",
+              p: 0.25,
+              mt: 0.25,
+              bgcolor: "var(--projects-metric-color)",
+              "&:hover": {
                 bgcolor: "var(--projects-metric-color)",
-                // MUI IconButton applies a default hover bg (action.active + hoverOpacity); override so our custom bg stays
-                "&:hover": {
-                  bgcolor: "var(--projects-metric-color)",
-                },
-                borderRadius: "4px",
-              }}
-              aria-label="Add subtask"
-            >
-              <Add sx={{ fontSize: 18 }} />
-            </IconButton>
-          </>
+              },
+              borderRadius: "4px",
+            }}
+            aria-label="Add subtask"
+          >
+            <Add sx={{ fontSize: 18 }} />
+          </IconButton>
+        )}
+        {showDeleteButton && (
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDeleteDialogOpen(true);
+            }}
+            sx={{
+              color: "#ffffff",
+              p: 0.25,
+              mt: 0.25,
+              bgcolor: "#E67373",
+              "&:hover": {
+                bgcolor: "#E67373",
+              },
+              borderRadius: "4px",
+            }}
+            aria-label="Delete task"
+          >
+            <Delete sx={{ fontSize: 18 }} />
+          </IconButton>
         )}
       </Box>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="delete-task-dialog-title"
+        aria-describedby="delete-task-dialog-description"
+      >
+        <DialogTitle id="delete-task-dialog-title">
+          Delete task?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-task-dialog-description">
+            Are you sure you want to delete this task? This will also remove all
+            subtasks.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              onDeleteTask?.(task.id);
+              setDeleteDialogOpen(false);
+            }}
+            color="error"
+            autoFocus
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
       {sortedChildren.map((childTask) => (
         <TaskItem
           key={childTask.id}
@@ -205,6 +269,7 @@ export default function TaskItem({
           onTaskComplete={onTaskComplete}
           onAddTask={onAddTask}
           onEditTask={onEditTask}
+          onDeleteTask={onDeleteTask}
           projectId={projectId}
         />
       ))}

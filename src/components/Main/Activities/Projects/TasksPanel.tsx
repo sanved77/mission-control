@@ -71,6 +71,7 @@ export interface TasksPanelProps {
     projectId: string;
   }) => void;
   updateTask?: (taskId: string, content: string) => void;
+  deleteTask?: (taskId: string) => void;
 }
 
 export default function TasksPanel({
@@ -79,6 +80,7 @@ export default function TasksPanel({
   onTaskComplete,
   addTask,
   updateTask,
+  deleteTask,
 }: TasksPanelProps) {
   const [taskAddMode, setTaskAddMode] = useState<string | "root" | undefined>(
     undefined,
@@ -107,6 +109,10 @@ export default function TasksPanel({
 
   const handleEditTask = (taskId: string, content: string) => {
     updateTask?.(taskId, content);
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    deleteTask?.(taskId);
   };
 
   return (
@@ -186,6 +192,7 @@ export default function TasksPanel({
               onTaskComplete={onTaskComplete}
               onAddTask={handleAddTask}
               onEditTask={handleEditTask}
+              onDeleteTask={handleDeleteTask}
               projectId={projectId}
             />
           ))}

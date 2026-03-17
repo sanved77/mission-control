@@ -107,11 +107,22 @@ function getFakeTasks(): Task[] {
   ]
 }
 
+function collectTaskAndDescendantIds(taskId: string, tasks: Task[]): Set<string> {
+  const set = new Set<string>([taskId])
+  const task = tasks.find((t) => t.id === taskId)
+  if (!task?.subTasks?.length) return set
+  for (const id of task.subTasks) {
+    collectTaskAndDescendantIds(id, tasks).forEach((s) => set.add(s))
+  }
+  return set
+}
+
 export function useTasks(): {
   tasks: Task[]
   setTaskComplete: (taskId: string, isComplete: boolean) => void
   addTask: (params: { content: string; parentTaskId?: string; projectId: string }) => void
   updateTask: (taskId: string, content: string) => void
+  deleteTask: (taskId: string) => void
 } {
   const [tasks, setTasks] = useState<Task[]>(() => getTasksFromStorage() ?? getFakeTasks())
 
@@ -167,5 +178,17 @@ export function useTasks(): {
     )
   }, [])
 
-  return { tasks, setTaskComplete, addTask, updateTask }
+  const deleteTask = useCallback((taskId: string) => {
+    setTasks((prev) => {
+      const toDelete = collectTaskAndDescendantIds(taskId, prev)
+      return prev
+        .filter((t) => !toDelete.has(t.id))
+        .map((t) => ({
+          ...t,
+          subTasks: t.subTasks?.filter((id) => !toDelete.has(id)) ?? [],
+        }))
+    })
+  }, [])
+
+  return { tasks, setTaskComplete, addTask, updateTask, deleteTask }
 }
