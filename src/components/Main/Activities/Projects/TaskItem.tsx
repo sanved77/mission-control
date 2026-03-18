@@ -10,21 +10,16 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
-  Stack,
   Typography,
 } from "@mui/material";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
-import Add from "@mui/icons-material/Add";
-import Archive from "@mui/icons-material/Archive";
-import Unarchive from "@mui/icons-material/Unarchive";
-import Delete from "@mui/icons-material/Delete";
 import type { Task } from "../../../../types/projects";
 import { isCompleted } from "../../../../utils/taskCompletion";
 import { TaskAddModeContext } from "./TaskAddModeContext";
 import AddTaskInput from "./AddTaskInput";
+import TaskItemActions from "./TaskItemActions";
 
 export const TASK_TYPE = "TASK";
 
@@ -260,82 +255,21 @@ export default function TaskItem({
             </>
           )}
         </Box>
-        <Stack ml={1.5} direction="row" gap={1} sx={{ alignItems: "center" }}>
-          {showAddIcon && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                addMode?.setTaskAddMode(task.id);
-              }}
-              sx={{
-                color: "#ffffff",
-                p: 0.25,
-                mt: 0.25,
-                bgcolor: "var(--projects-metric-color)",
-                "&:hover": {
-                  bgcolor: "var(--projects-metric-color)",
-                },
-                borderRadius: "4px",
-              }}
-              aria-label="Add subtask"
-            >
-              <Add sx={{ fontSize: 18 }} />
-            </IconButton>
-          )}
-          {showArchiveButton && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onArchiveTask?.(task.id, !(task.isArchived ?? false));
-                if (addMode?.editTaskId === task.id)
-                  addMode.setEditTaskId(undefined);
-                if (addMode?.taskAddMode === task.id)
-                  addMode.setTaskAddMode(undefined);
-              }}
-              sx={{
-                color: "#ffffff",
-                p: 0.25,
-                mt: 0.25,
-                bgcolor: "var(--projects-metric-color)",
-                "&:hover": {
-                  bgcolor: "var(--projects-metric-color)",
-                },
-                borderRadius: "4px",
-              }}
-              aria-label={task.isArchived ? "Unarchive task" : "Archive task"}
-            >
-              {task.isArchived ? (
-                <Unarchive sx={{ fontSize: 18 }} />
-              ) : (
-                <Archive sx={{ fontSize: 18 }} />
-              )}
-            </IconButton>
-          )}
-          {showDeleteButton && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteDialogOpen(true);
-              }}
-              sx={{
-                color: "#ffffff",
-                p: 0.25,
-                mt: 0.25,
-                bgcolor: "#E67373",
-                "&:hover": {
-                  bgcolor: "#E67373",
-                },
-                borderRadius: "4px",
-              }}
-              aria-label="Delete task"
-            >
-              <Delete sx={{ fontSize: 18 }} />
-            </IconButton>
-          )}
-        </Stack>
+        <TaskItemActions
+          task={task}
+          showAddIcon={!!showAddIcon}
+          showArchiveButton={!!showArchiveButton}
+          showDeleteButton={!!showDeleteButton}
+          onAddClick={(taskId) => addMode?.setTaskAddMode(taskId)}
+          onArchiveClick={(taskId, archived) => {
+            onArchiveTask?.(taskId, archived);
+            if (addMode?.editTaskId === task.id)
+              addMode.setEditTaskId(undefined);
+            if (addMode?.taskAddMode === task.id)
+              addMode.setTaskAddMode(undefined);
+          }}
+          onDeleteClick={() => setDeleteDialogOpen(true)}
+        />
       </Box>
       <Dialog
         open={deleteDialogOpen}
