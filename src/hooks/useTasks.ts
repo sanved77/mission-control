@@ -12,7 +12,8 @@ function isValidTask(item: unknown): item is Task {
     typeof o.createdOn === 'number' &&
     (o.completedOn === undefined || typeof o.completedOn === 'number') &&
     (o.projectID === undefined || typeof o.projectID === 'string') &&
-    (o.subTasks === undefined || Array.isArray(o.subTasks))
+    (o.subTasks === undefined || Array.isArray(o.subTasks)) &&
+    (o.isArchived === undefined || typeof o.isArchived === 'boolean')
   )
 }
 
@@ -27,7 +28,10 @@ function getTasksFromStorage(): Task[] | null {
     for (const item of parsed) {
       if (!isValidTask(item)) return null
     }
-    return parsed as Task[]
+    return (parsed as Task[]).map((t) => ({
+      ...t,
+      isArchived: t.isArchived ?? false,
+    }))
   } catch {
     return null
   }
@@ -124,6 +128,7 @@ export function useTasks(): {
   updateTask: (taskId: string, content: string) => void
   deleteTask: (taskId: string) => void
   moveTask: (draggedTaskId: string, newParentTaskId: string | null) => void
+  archiveTask: (taskId: string, archived?: boolean) => void
 } {
   const [tasks, setTasks] = useState<Task[]>(() => getTasksFromStorage() ?? getFakeTasks())
 
@@ -221,5 +226,12 @@ export function useTasks(): {
     []
   )
 
-  return { tasks, setTaskComplete, addTask, updateTask, deleteTask, moveTask }
+  const archiveTask = useCallback((taskId: string, archived: boolean = true) => {
+    setTasks((prev) => {
+      const toArchive = collectTaskAndDescendantIds(taskId, prev)
+      return prev.map((t) => (toArchive.has(t.id) ? { ...t, isArchived: archived } : t))
+    })
+  }, [])
+
+  return { tasks, setTaskComplete, addTask, updateTask, deleteTask, moveTask, archiveTask }
 }

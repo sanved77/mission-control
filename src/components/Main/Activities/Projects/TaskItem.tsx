@@ -11,11 +11,14 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  Stack,
   Typography,
 } from "@mui/material";
 import CheckBoxIcon from "@mui/icons-material/CheckBox";
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import Add from "@mui/icons-material/Add";
+import Archive from "@mui/icons-material/Archive";
+import Unarchive from "@mui/icons-material/Unarchive";
 import Delete from "@mui/icons-material/Delete";
 import type { Task } from "../../../../types/projects";
 import { isCompleted } from "../../../../utils/taskCompletion";
@@ -66,7 +69,9 @@ export interface TaskItemProps {
   onAddTask?: (content: string, parentTaskId: string) => void;
   onEditTask?: (taskId: string, content: string) => void;
   onDeleteTask?: (taskId: string) => void;
+  onArchiveTask?: (taskId: string, archived: boolean) => void;
   onDrop?: (draggedTaskId: string, targetTaskId: string) => void;
+  showArchived?: boolean;
   projectId?: string;
 }
 
@@ -78,7 +83,9 @@ export default function TaskItem({
   onAddTask,
   onEditTask,
   onDeleteTask,
+  onArchiveTask,
   onDrop,
+  showArchived = false,
   projectId,
 }: TaskItemProps) {
   const addMode = useContext(TaskAddModeContext);
@@ -105,7 +112,10 @@ export default function TaskItem({
     dragRef(el);
     dropRef(el);
   };
-  const subTaskIds = task.subTasks ?? [];
+  const subTaskIdsRaw = task.subTasks ?? [];
+  const subTaskIds = showArchived
+    ? subTaskIdsRaw
+    : subTaskIdsRaw.filter((id) => !taskMap.get(id)?.isArchived);
   const hasSubTasks = subTaskIds.length > 0;
   const completed = isCompleted(task, taskMap);
   const { completed: completedCount, total } = getTaskCompletionPercent(
@@ -118,6 +128,7 @@ export default function TaskItem({
   const sortedChildren = sortChildTasks(subTaskIds, taskMap);
   const showAddIcon = isHovered && addMode?.setTaskAddMode && !isEditMode;
   const showDeleteButton = isHovered && !isEditMode && onDeleteTask;
+  const showArchiveButton = isHovered && !isEditMode && onArchiveTask;
 
   return (
     <Box
@@ -136,6 +147,7 @@ export default function TaskItem({
           border: "1px solid transparent",
           borderRadius: "4px",
           cursor: isDragging ? "grabbing" : "grab",
+          ...(task.isArchived ? { opacity: 0.6 } : {}),
           ...(isDragging
             ? { backgroundColor: "var(--scratchpad-toolbar-bg)", opacity: 0.85 }
             : {}),
@@ -223,12 +235,37 @@ export default function TaskItem({
             </>
           )}
         </Box>
-        {showAddIcon && (
+        <Stack ml={1.5} direction="row" gap={1} sx={{ alignItems: "center" }}>
+          {showAddIcon && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                addMode?.setTaskAddMode(task.id);
+              }}
+              sx={{
+                color: "#ffffff",
+                p: 0.25,
+                mt: 0.25,
+                bgcolor: "var(--projects-metric-color)",
+                "&:hover": {
+                  bgcolor: "var(--projects-metric-color)",
+                },
+                borderRadius: "4px",
+              }}
+              aria-label="Add subtask"
+            >
+              <Add sx={{ fontSize: 18 }} />
+            </IconButton>
+          )}
+        {showArchiveButton && (
           <IconButton
             size="small"
             onClick={(e) => {
               e.stopPropagation();
-              addMode?.setTaskAddMode(task.id);
+              onArchiveTask?.(task.id, !(task.isArchived ?? false));
+              if (addMode?.editTaskId === task.id) addMode.setEditTaskId(undefined);
+              if (addMode?.taskAddMode === task.id) addMode.setTaskAddMode(undefined);
             }}
             sx={{
               color: "#ffffff",
@@ -240,33 +277,38 @@ export default function TaskItem({
               },
               borderRadius: "4px",
             }}
-            aria-label="Add subtask"
+            aria-label={task.isArchived ? "Unarchive task" : "Archive task"}
           >
-            <Add sx={{ fontSize: 18 }} />
+            {task.isArchived ? (
+              <Unarchive sx={{ fontSize: 18 }} />
+            ) : (
+              <Archive sx={{ fontSize: 18 }} />
+            )}
           </IconButton>
         )}
-        {showDeleteButton && (
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              setDeleteDialogOpen(true);
-            }}
-            sx={{
-              color: "#ffffff",
-              p: 0.25,
-              mt: 0.25,
-              bgcolor: "#E67373",
-              "&:hover": {
+          {showDeleteButton && (
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteDialogOpen(true);
+              }}
+              sx={{
+                color: "#ffffff",
+                p: 0.25,
+                mt: 0.25,
                 bgcolor: "#E67373",
-              },
-              borderRadius: "4px",
-            }}
-            aria-label="Delete task"
-          >
-            <Delete sx={{ fontSize: 18 }} />
-          </IconButton>
-        )}
+                "&:hover": {
+                  bgcolor: "#E67373",
+                },
+                borderRadius: "4px",
+              }}
+              aria-label="Delete task"
+            >
+              <Delete sx={{ fontSize: 18 }} />
+            </IconButton>
+          )}
+        </Stack>
       </Box>
       <Dialog
         open={deleteDialogOpen}
@@ -274,9 +316,7 @@ export default function TaskItem({
         aria-labelledby="delete-task-dialog-title"
         aria-describedby="delete-task-dialog-description"
       >
-        <DialogTitle id="delete-task-dialog-title">
-          Delete task?
-        </DialogTitle>
+        <DialogTitle id="delete-task-dialog-title">Delete task?</DialogTitle>
         <DialogContent>
           <DialogContentText id="delete-task-dialog-description">
             Are you sure you want to delete this task? This will also remove all
@@ -307,7 +347,9 @@ export default function TaskItem({
           onAddTask={onAddTask}
           onEditTask={onEditTask}
           onDeleteTask={onDeleteTask}
+          onArchiveTask={onArchiveTask}
           onDrop={onDrop}
+          showArchived={showArchived}
           projectId={projectId}
         />
       ))}

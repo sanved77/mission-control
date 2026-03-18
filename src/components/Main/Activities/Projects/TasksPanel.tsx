@@ -10,10 +10,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
   Typography,
 } from "@mui/material";
-import Add from "@mui/icons-material/Add";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import type { Task } from "../../../../types/projects";
 import { isCompleted } from "../../../../utils/taskCompletion";
 import { TaskAddModeContext } from "./TaskAddModeContext";
@@ -21,7 +21,7 @@ import AddTaskInput from "./AddTaskInput";
 import TaskItem, { TASK_TYPE } from "./TaskItem";
 
 function getProjectTaskIds(tasks: Task[], projectId: string): Set<string> {
-  const byProject = tasks.filter((t) => t.projectID === projectId);
+  const byProject = tasks.filter((t) => t.projectID === projectId && !t.isArchived);
   const ids = new Set<string>();
   function add(task: Task) {
     ids.add(task.id);
@@ -86,6 +86,7 @@ export interface TasksPanelProps {
   updateTask?: (taskId: string, content: string) => void;
   deleteTask?: (taskId: string) => void;
   moveTask?: (draggedTaskId: string, newParentTaskId: string | null) => void;
+  archiveTask?: (taskId: string, archived?: boolean) => void;
 }
 
 type PendingMove = { draggedId: string; targetId: string | null } | null;
@@ -106,13 +107,19 @@ function RootDropZone({
     <div
       ref={dropRef as unknown as React.Ref<HTMLDivElement>}
       style={{
+        width: "100%",
+        height: "100%",
+        minHeight: 48,
         padding: "8px 16px",
-        marginBottom: 4,
         borderRadius: 4,
         border: isOver
           ? "1px dashed var(--projects-metric-color)"
           : "1px dashed transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         textAlign: "center",
+        boxSizing: "border-box",
         ...(isOver
           ? {
               backgroundColor: "rgba(15, 166, 242, 0.18)",
@@ -142,24 +149,28 @@ export default function TasksPanel({
   updateTask,
   deleteTask,
   moveTask,
+  archiveTask,
 }: TasksPanelProps) {
   const [taskAddMode, setTaskAddMode] = useState<string | "root" | undefined>(
     undefined,
   );
   const [editTaskId, setEditTaskId] = useState<string | undefined>(undefined);
   const [pendingMove, setPendingMove] = useState<PendingMove>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const nonArchivedTasks = useMemo(() => tasks.filter((t) => !t.isArchived), [tasks]);
   const taskMap = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks]);
+  const tasksForDisplay = showArchived ? tasks : nonArchivedTasks;
   const rootTasks = useMemo(
-    () => getRootTasks(tasks, projectId),
-    [tasks, projectId],
+    () => getRootTasks(tasksForDisplay, projectId),
+    [tasksForDisplay, projectId],
   );
   const sortedRoots = useMemo(
     () => sortTasksIncompleteFirst(rootTasks, taskMap),
     [rootTasks, taskMap],
   );
   const { completed, total } = useMemo(
-    () => getProjectCompletion(tasks, projectId, taskMap),
-    [tasks, projectId, taskMap],
+    () => getProjectCompletion(nonArchivedTasks, projectId, taskMap),
+    [nonArchivedTasks, projectId, taskMap],
   );
   const activeCount = total - completed;
   const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
@@ -169,12 +180,22 @@ export default function TasksPanel({
     setTaskAddMode(undefined);
   };
 
+  const handleAddRootTask = (content: string) => {
+    addTask?.({ content, projectId });
+  };
+
   const handleEditTask = (taskId: string, content: string) => {
     updateTask?.(taskId, content);
   };
 
   const handleDeleteTask = (taskId: string) => {
     deleteTask?.(taskId);
+  };
+
+  const handleArchiveTask = (taskId: string, archived: boolean) => {
+    archiveTask?.(taskId, archived);
+    if (editTaskId === taskId) setEditTaskId(undefined);
+    if (taskAddMode === taskId) setTaskAddMode(undefined);
   };
 
   const handleDrop = (draggedId: string, targetId: string | null) => {
@@ -233,7 +254,7 @@ export default function TasksPanel({
           >
             Tasks
           </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <Chip
               label={`${activeCount} Active`}
               size="small"
@@ -254,6 +275,24 @@ export default function TasksPanel({
                 borderRadius: "16px",
               }}
             />
+            <Button
+              size="small"
+              onClick={() => setShowArchived((v) => !v)}
+              startIcon={
+                showArchived ? (
+                  <Visibility fontSize="small" />
+                ) : (
+                  <VisibilityOff fontSize="small" />
+                )
+              }
+              sx={{
+                color: "var(--scratchpad-text-muted)",
+                textTransform: "none",
+              }}
+              aria-label={showArchived ? "Hide archived tasks" : "Show archived tasks"}
+            >
+              Archive
+            </Button>
           </Box>
         </Box>
         <Typography
@@ -262,55 +301,63 @@ export default function TasksPanel({
         >
           {percent}% complete
         </Typography>
-        <Box
-          sx={{ flex: 1, overflow: "auto" }}
-          onClick={() => {
-            setEditTaskId(undefined);
-            setTaskAddMode(undefined);
-          }}
-        >
-          <DndProvider backend={HTML5Backend}>
-            <RootDropZone onDropToRoot={(draggedId) => handleDrop(draggedId, null)} />
-            {sortedRoots.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                taskMap={taskMap}
-                onTaskComplete={onTaskComplete}
-                onAddTask={handleAddTask}
-                onEditTask={handleEditTask}
-                onDeleteTask={handleDeleteTask}
-                onDrop={handleDrop}
-                projectId={projectId}
-              />
-            ))}
-          {taskAddMode === "root" ? (
-            <Box sx={{ display: "flex", width: "70%" }}>
-              <AddTaskInput
-                onSubmit={(content) => handleAddTask(content)}
-                onCancel={() => setTaskAddMode(undefined)}
-                centerRow
-                fillContainer
-              />
-            </Box>
-          ) : (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditTaskId(undefined);
-                  setTaskAddMode("root");
-                }}
-                sx={{ color: "var(--scratchpad-text-muted)" }}
-                aria-label="Add root task"
-              >
-                <Add fontSize="small" />
-              </IconButton>
-            </Box>
-          )}
-          </DndProvider>
+        <Box sx={{ display: "flex", width: "70%", mb: 2 }}>
+          <AddTaskInput
+            onSubmit={handleAddRootTask}
+            centerRow
+            fillContainer
+            placeholder="New task…"
+          />
         </Box>
+        <DndProvider backend={HTML5Backend}>
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+            }}
+          >
+            <Box
+              sx={{
+                height: "100%",
+                overflow: "auto",
+                display: "flex",
+                flexDirection: "column",
+              }}
+              onClick={() => {
+                setEditTaskId(undefined);
+                setTaskAddMode(undefined);
+              }}
+            >
+              {sortedRoots.map((task) => (
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  taskMap={taskMap}
+                  onTaskComplete={onTaskComplete}
+                  onAddTask={handleAddTask}
+                  onEditTask={handleEditTask}
+                  onDeleteTask={handleDeleteTask}
+                  onArchiveTask={handleArchiveTask}
+                  onDrop={handleDrop}
+                  showArchived={showArchived}
+                  projectId={projectId}
+                />
+              ))}
+              <Box
+                sx={{
+                  flex: "1 0 auto",
+                  minHeight: 48,
+                  width: "100%",
+                  display: "flex",
+                }}
+              >
+                <RootDropZone
+                  onDropToRoot={(draggedId) => handleDrop(draggedId, null)}
+                />
+              </Box>
+            </Box>
+          </Box>
+        </DndProvider>
       </Box>
       <Dialog
         open={pendingMove != null}

@@ -77,7 +77,12 @@ function getFakeProjects(): Project[] {
   ]
 }
 
-export function useProjects(): { projects: Project[]; setBlockerDismissed: (projectId: string, blockerIndex: number) => void } {
+export function useProjects(): {
+  projects: Project[]
+  setBlockerDismissed: (projectId: string, blockerIndex: number) => void
+  updateProjectName: (projectId: string, projectName: string) => void
+  updateProjectDescription: (projectId: string, description: string) => void
+} {
   const [projects, setProjects] = useState<Project[]>(() => getProjectsFromStorage() ?? getFakeProjects())
 
   useEffect(() => {
@@ -102,5 +107,13 @@ export function useProjects(): { projects: Project[]; setBlockerDismissed: (proj
     )
   }, [])
 
-  return { projects, setBlockerDismissed }
+  const updateProjectName = useCallback((projectId: string, projectName: string) => {
+    setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, projectName } : p)))
+  }, [])
+
+  const updateProjectDescription = useCallback((projectId: string, description: string) => {
+    setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, description } : p)))
+  }, [])
+
+  return { projects, setBlockerDismissed, updateProjectName, updateProjectDescription }
 }

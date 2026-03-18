@@ -17,6 +17,7 @@ export interface Task {
   completedOn?: number
   projectID?: string
   subTasks?: string[]
+  isArchived?: boolean
 }
 
 export interface Project {
