@@ -17,6 +17,7 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
 import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
 import type { Task } from "../../../../types/projects";
 import { isCompleted } from "../../../../utils/taskCompletion";
+import { useTaskActions } from "./useTaskActions";
 import { TaskAddModeContext } from "./TaskAddModeContext";
 import AddTaskInput from "./AddTaskInput";
 import TaskItemActions from "./TaskItemActions";
@@ -67,11 +68,6 @@ export interface TaskItemProps {
   task: Task;
   taskMap: Map<string, Task>;
   indentLevel?: number;
-  onTaskComplete?: (taskId: string, isComplete: boolean, completeSubtasks?: boolean) => void;
-  onAddTask?: (content: string, parentTaskId: string) => void;
-  onEditTask?: (taskId: string, content: string) => void;
-  onDeleteTask?: (taskId: string) => void;
-  onArchiveTask?: (taskId: string, archived: boolean) => void;
   onDrop?: (draggedTaskId: string, targetTaskId: string) => void;
   showArchived?: boolean;
   projectId?: string;
@@ -81,16 +77,18 @@ export default function TaskItem({
   task,
   taskMap,
   indentLevel = 0,
-  onTaskComplete,
-  onAddTask,
-  onEditTask,
-  onDeleteTask,
-  onArchiveTask,
   onDrop,
   showArchived = false,
   projectId,
 }: TaskItemProps) {
   const addMode = useContext(TaskAddModeContext);
+  const {
+    setTaskComplete,
+    addTask,
+    updateTask,
+    deleteTask,
+    archiveTask,
+  } = useTaskActions();
   const [isHovered, setIsHovered] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{
@@ -139,8 +137,8 @@ export default function TaskItem({
   const sortedChildren = sortChildTasks(subTaskIds, taskMap);
   const archived = task.isArchived ?? false;
   const showAddIcon = isHovered && addMode?.setTaskAddMode && !isEditMode;
-  const showDeleteButton = isHovered && !isEditMode && onDeleteTask;
-  const showArchiveButton = isHovered && !isEditMode && onArchiveTask;
+  const showDeleteButton = isHovered && !isEditMode;
+  const showArchiveButton = isHovered && !isEditMode;
 
   return (
     <Box
@@ -200,7 +198,7 @@ export default function TaskItem({
             archived
               ? undefined
               : () =>
-                  onTaskComplete?.(
+                  setTaskComplete(
                     task.id,
                     !completed,
                     !!hasSubTasks,
@@ -215,10 +213,10 @@ export default function TaskItem({
           sx={{
             minWidth: 0,
             ...(isEditMode ? { width: "70%" } : {}),
-            ...(onEditTask && !isEditMode ? { cursor: "pointer" } : {}),
+            ...(!isEditMode ? { cursor: "pointer" } : {}),
           }}
           onClick={
-            onEditTask && !isEditMode
+            !isEditMode
               ? (e) => {
                   e.stopPropagation();
                   addMode?.setEditTaskId(task.id);
@@ -226,14 +224,14 @@ export default function TaskItem({
               : undefined
           }
         >
-          {isEditMode && onEditTask ? (
+          {isEditMode ? (
             <AddTaskInput
               initialValue={task.content}
               mode="edit"
               inline
               variant="projects"
               onSubmit={(content) => {
-                onEditTask(task.id, content);
+                updateTask(task.id, content);
                 addMode?.setEditTaskId(undefined);
               }}
               onCancel={() => addMode?.setEditTaskId(undefined)}
@@ -275,7 +273,7 @@ export default function TaskItem({
           showDeleteButton={!!showDeleteButton}
           onAddClick={(taskId) => addMode?.setTaskAddMode(taskId)}
           onArchiveClick={(taskId, archived) => {
-            onArchiveTask?.(taskId, archived);
+            archiveTask(taskId, archived);
             if (addMode?.editTaskId === task.id)
               addMode.setEditTaskId(undefined);
             if (addMode?.taskAddMode === task.id)
@@ -291,7 +289,7 @@ export default function TaskItem({
         onClose={() => setContextMenu(null)}
         onAddSubtask={() => addMode?.setTaskAddMode(task.id)}
         onToggleArchive={() => {
-          onArchiveTask?.(task.id, !(task.isArchived ?? false));
+          archiveTask(task.id, !(task.isArchived ?? false));
           if (addMode?.editTaskId === task.id)
             addMode.setEditTaskId(undefined);
           if (addMode?.taskAddMode === task.id)
@@ -316,7 +314,7 @@ export default function TaskItem({
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
           <Button
             onClick={() => {
-              onDeleteTask?.(task.id);
+              deleteTask(task.id);
               setDeleteDialogOpen(false);
             }}
             color="error"
@@ -332,21 +330,16 @@ export default function TaskItem({
           task={childTask}
           taskMap={taskMap}
           indentLevel={indentLevel + 1}
-          onTaskComplete={onTaskComplete}
-          onAddTask={onAddTask}
-          onEditTask={onEditTask}
-          onDeleteTask={onDeleteTask}
-          onArchiveTask={onArchiveTask}
           onDrop={onDrop}
           showArchived={showArchived}
           projectId={projectId}
         />
       ))}
-      {addMode?.taskAddMode === task.id && onAddTask && !isEditMode && (
+      {addMode?.taskAddMode === task.id && projectId && !isEditMode && (
         <AddTaskInput
           indentLevel={indentLevel + 1}
           onSubmit={(content) => {
-            onAddTask(content, task.id);
+            addTask({ content, parentTaskId: task.id, projectId });
             addMode.setTaskAddMode(undefined);
           }}
           onCancel={() => addMode.setTaskAddMode(undefined)}

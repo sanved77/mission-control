@@ -16,6 +16,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import type { Task } from "../../../../types/projects";
 import { isCompleted } from "../../../../utils/taskCompletion";
+import { useTaskActions } from "./useTaskActions";
 import { TaskAddModeContext } from "./TaskAddModeContext";
 import AddTaskInput from "./AddTaskInput";
 import TaskItem, { TASK_TYPE } from "./TaskItem";
@@ -77,16 +78,6 @@ function sortTasksIncompleteFirst(
 export interface TasksPanelProps {
   tasks: Task[];
   projectId: string;
-  onTaskComplete?: (taskId: string, isComplete: boolean, completeSubtasks?: boolean) => void;
-  addTask?: (params: {
-    content: string;
-    parentTaskId?: string;
-    projectId: string;
-  }) => void;
-  updateTask?: (taskId: string, content: string) => void;
-  deleteTask?: (taskId: string) => void;
-  moveTask?: (draggedTaskId: string, newParentTaskId: string | null) => void;
-  archiveTask?: (taskId: string, archived?: boolean) => void;
 }
 
 type PendingMove = { draggedId: string; targetId: string | null } | null;
@@ -144,13 +135,8 @@ function RootDropZone({
 export default function TasksPanel({
   tasks,
   projectId,
-  onTaskComplete,
-  addTask,
-  updateTask,
-  deleteTask,
-  moveTask,
-  archiveTask,
 }: TasksPanelProps) {
+  const { addTask, moveTask } = useTaskActions();
   const [taskAddMode, setTaskAddMode] = useState<string | "root" | undefined>(
     undefined,
   );
@@ -175,27 +161,8 @@ export default function TasksPanel({
   const activeCount = total - completed;
   const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-  const handleAddTask = (content: string, parentTaskId?: string) => {
-    addTask?.({ content, parentTaskId, projectId });
-    setTaskAddMode(undefined);
-  };
-
   const handleAddRootTask = (content: string) => {
-    addTask?.({ content, projectId });
-  };
-
-  const handleEditTask = (taskId: string, content: string) => {
-    updateTask?.(taskId, content);
-  };
-
-  const handleDeleteTask = (taskId: string) => {
-    deleteTask?.(taskId);
-  };
-
-  const handleArchiveTask = (taskId: string, archived: boolean) => {
-    archiveTask?.(taskId, archived);
-    if (editTaskId === taskId) setEditTaskId(undefined);
-    if (taskAddMode === taskId) setTaskAddMode(undefined);
+    addTask({ content, projectId });
   };
 
   const handleDrop = (draggedId: string, targetId: string | null) => {
@@ -208,7 +175,7 @@ export default function TasksPanel({
 
   const handleConfirmMove = () => {
     if (pendingMove) {
-      moveTask?.(pendingMove.draggedId, pendingMove.targetId);
+      moveTask(pendingMove.draggedId, pendingMove.targetId);
       setPendingMove(null);
     }
   };
@@ -333,11 +300,6 @@ export default function TasksPanel({
                   key={task.id}
                   task={task}
                   taskMap={taskMap}
-                  onTaskComplete={onTaskComplete}
-                  onAddTask={handleAddTask}
-                  onEditTask={handleEditTask}
-                  onDeleteTask={handleDeleteTask}
-                  onArchiveTask={handleArchiveTask}
                   onDrop={handleDrop}
                   showArchived={showArchived}
                   projectId={projectId}
