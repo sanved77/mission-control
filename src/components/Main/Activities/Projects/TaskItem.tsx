@@ -20,6 +20,7 @@ import { isCompleted } from "../../../../utils/taskCompletion";
 import { TaskAddModeContext } from "./TaskAddModeContext";
 import AddTaskInput from "./AddTaskInput";
 import TaskItemActions from "./TaskItemActions";
+import TaskItemContextMenu from "./TaskItemContextMenu";
 
 export const TASK_TYPE = "TASK";
 
@@ -92,6 +93,10 @@ export default function TaskItem({
   const addMode = useContext(TaskAddModeContext);
   const [isHovered, setIsHovered] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
   const isEditMode = addMode?.editTaskId === task.id;
 
   const [{ isDragging }, dragRef] = useDrag({
@@ -167,6 +172,14 @@ export default function TaskItem({
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setContextMenu({
+            mouseX: e.clientX + 2,
+            mouseY: e.clientY - 6,
+          });
+        }}
       >
         <Checkbox
           size="small"
@@ -271,6 +284,21 @@ export default function TaskItem({
           onDeleteClick={() => setDeleteDialogOpen(true)}
         />
       </Box>
+      <TaskItemContextMenu
+        open={contextMenu !== null}
+        contextMenu={contextMenu}
+        task={task}
+        onClose={() => setContextMenu(null)}
+        onAddSubtask={() => addMode?.setTaskAddMode(task.id)}
+        onToggleArchive={() => {
+          onArchiveTask?.(task.id, !(task.isArchived ?? false));
+          if (addMode?.editTaskId === task.id)
+            addMode.setEditTaskId(undefined);
+          if (addMode?.taskAddMode === task.id)
+            addMode.setTaskAddMode(undefined);
+        }}
+        onDelete={() => setDeleteDialogOpen(true)}
+      />
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
