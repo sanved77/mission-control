@@ -61,14 +61,14 @@ function getFakeProjects(): Project[] {
         'What is the expected peak load for the Black Friday event?',
       ],
       links: [
-        { label: 'Confluence Docs', url: '#', type: 'Doc' },
-        { label: 'Log Explorer', url: '#', type: 'Doc' },
+        { label: 'Confluence Docs', url: '#', type: 'Docs' },
+        { label: 'Log Explorer', url: '#', type: 'Docs' },
         { label: 'Pull Requests', url: '#', type: 'Code' },
         { label: 'Telemetry Dash', url: '#', type: 'Telemetry' },
         { label: 'UML Diagrams', url: '#', type: 'Design' },
         { label: 'User Research', url: '#', type: 'Design' },
-        { label: 'AWS Console', url: '#', type: 'Development' },
-        { label: 'Temporal UI', url: '#', type: 'Development' },
+        { label: 'AWS Console', url: '#', type: 'Tool' },
+        { label: 'Temporal UI', url: '#', type: 'Tool' },
       ],
       createdOn: now - 30 * day,
       deadlineOn: now + 14 * day,
@@ -82,6 +82,7 @@ export function useProjects(): {
   setBlockerDismissed: (projectId: string, blockerIndex: number) => void
   addBlocker: (projectId: string, text: string) => void
   addQuestion: (projectId: string, text: string) => void
+  addLink: (projectId: string, link: { label: string; url: string; type?: string }) => void
   updateProjectName: (projectId: string, projectName: string) => void
   updateProjectDescription: (projectId: string, description: string) => void
 } {
@@ -129,6 +130,16 @@ export function useProjects(): {
     )
   }, [])
 
+  const addLink = useCallback((projectId: string, link: { label: string; url: string; type?: string }) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p
+        const links = [...(p.links ?? []), link]
+        return { ...p, links }
+      })
+    )
+  }, [])
+
   const updateProjectName = useCallback((projectId: string, projectName: string) => {
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, projectName } : p)))
   }, [])
@@ -137,5 +148,5 @@ export function useProjects(): {
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, description } : p)))
   }, [])
 
-  return { projects, setBlockerDismissed, addBlocker, addQuestion, updateProjectName, updateProjectDescription }
+  return { projects, setBlockerDismissed, addBlocker, addQuestion, addLink, updateProjectName, updateProjectDescription }
 }

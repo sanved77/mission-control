@@ -27,6 +27,7 @@ export default function Projects() {
     setBlockerDismissed,
     addBlocker,
     addQuestion,
+    addLink,
     updateProjectName,
     updateProjectDescription,
   } = useProjects();
@@ -304,7 +305,13 @@ export default function Projects() {
       <Box sx={{ flex: "0 0 40%", minWidth: 0, overflow: "auto", p: 2 }}>
         {selectedProject ? (
           <>
-            <LinksSection links={selectedProject.links} />
+            <LinksSection
+              links={selectedProject.links}
+              onAddLink={(link) => {
+                addLink(selectedProjectId, link);
+                showSnackbar("success", "Link added");
+              }}
+            />
             <BlockersSection
               blockers={selectedProject.blockers}
               onDismissBlocker={(i) =>

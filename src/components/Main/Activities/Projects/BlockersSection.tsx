@@ -46,8 +46,8 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
               flexShrink: 0,
               borderRadius: '50%',
               color: '#ffffff',
-              bgcolor: 'var(--projects-metric-color)',
-              '&:hover': { bgcolor: 'var(--projects-metric-color)', opacity: 0.9 },
+              bgcolor: '#F43F5E',
+              '&:hover': { bgcolor: '#F43F5E', opacity: 0.9 },
             }}
             aria-label="Add blocker"
           >
@@ -68,7 +68,7 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
                   alignItems: 'flex-start',
                   gap: 1,
                   p: 1.5,
-                  borderRadius: 1,
+                  borderRadius: 3,
                   bgcolor: 'rgba(229, 115, 115, 0.15)',
                   border: '1px solid rgba(229, 115, 115, 0.3)',
                 }}

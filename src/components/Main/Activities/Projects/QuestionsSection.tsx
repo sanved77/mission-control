@@ -57,9 +57,9 @@ export default function QuestionsSection({
               flexShrink: 0,
               borderRadius: "50%",
               color: "#ffffff",
-              bgcolor: "var(--projects-metric-color)",
+              bgcolor: "#FB923C",
               "&:hover": {
-                bgcolor: "var(--projects-metric-color)",
+                bgcolor: "#FB923C",
                 opacity: 0.9,
               },
             }}
@@ -88,9 +88,9 @@ export default function QuestionsSection({
                 alignItems: "flex-start",
                 gap: 1,
                 p: 1.5,
-                borderRadius: 1,
+                borderLeft: "4px solid #FB923C",
                 bgcolor: "var(--scratchpad-toolbar-bg)",
-                border: "1px solid var(--scratchpad-separator)",
+                // border: "1px solid var(--scratchpad-separator)",
               }}
             >
               <Typography

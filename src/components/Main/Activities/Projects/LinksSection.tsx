@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
-import { useMemo } from "react";
-import { Box, Link, Typography } from "@mui/material";
+import { useState, useMemo } from "react";
+import { Box, IconButton, Link, Typography } from "@mui/material";
+import Add from "@mui/icons-material/Add";
 import Code from "@mui/icons-material/Code";
 import Description from "@mui/icons-material/Description";
 import ShowChart from "@mui/icons-material/ShowChart";
@@ -8,13 +9,14 @@ import Palette from "@mui/icons-material/Palette";
 import Build from "@mui/icons-material/Build";
 import LinkIcon from "@mui/icons-material/Link";
 import type { LinkObj } from "../../../../types/projects";
+import LinkAddDialog from "./LinkAddDialog";
 
 const TYPE_ICON_MAP: Record<string, ComponentType<{ sx?: object }>> = {
   Code: Code,
   Telemetry: ShowChart,
-  Doc: Description,
+  Docs: Description,
   Design: Palette,
-  Development: Build,
+  Tool: Build,
   Other: LinkIcon,
 };
 
@@ -25,18 +27,24 @@ function getIconForType(type?: string) {
 
 export interface LinksSectionProps {
   links: LinkObj[];
+  onAddLink?: (link: { label: string; url: string; type: string }) => void;
 }
 
-export default function LinksSection({ links }: LinksSectionProps) {
+export default function LinksSection({ links, onAddLink }: LinksSectionProps) {
+  const [hoveredOn, setHoveredOn] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const sorted = useMemo(
     () => [...links].sort((a, b) => a.label.localeCompare(b.label)),
     [links],
   );
-  if (sorted.length === 0) return null;
 
   return (
     <Box sx={{ mb: 3 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 1 }}>
+      <Box
+        sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+        onMouseEnter={() => setHoveredOn(true)}
+        onMouseLeave={() => setHoveredOn(false)}
+      >
         <Typography
           sx={{
             fontSize: 20,
@@ -49,6 +57,25 @@ export default function LinksSection({ links }: LinksSectionProps) {
         >
           Context Links
         </Typography>
+        {onAddLink && hoveredOn && (
+          <IconButton
+            size="small"
+            onClick={() => setDialogOpen(true)}
+            sx={{
+              p: 0.5,
+              width: 24,
+              height: 24,
+              flexShrink: 0,
+              borderRadius: "50%",
+              color: "#ffffff",
+              bgcolor: "var(--projects-metric-color)",
+              "&:hover": { bgcolor: "var(--projects-metric-color)", opacity: 0.9 },
+            }}
+            aria-label="Add link"
+          >
+            <Add sx={{ fontSize: 18 }} />
+          </IconButton>
+        )}
         <Box
           sx={{
             flex: 1,
@@ -60,7 +87,8 @@ export default function LinksSection({ links }: LinksSectionProps) {
         />
       </Box>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-        {sorted.map((link, i) => {
+        {sorted.length > 0 &&
+        sorted.map((link, i) => {
           const Icon = getIconForType(link.type);
           return (
             <Link
@@ -87,6 +115,11 @@ export default function LinksSection({ links }: LinksSectionProps) {
           );
         })}
       </Box>
+      <LinkAddDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onAdd={(link) => onAddLink?.(link)}
+      />
     </Box>
   );
 }

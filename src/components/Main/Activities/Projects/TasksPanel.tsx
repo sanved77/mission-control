@@ -230,7 +230,6 @@ export default function TasksPanel({ tasks, projectId }: TasksPanelProps) {
           >
             Tasks
           </Typography>
-          <Box sx={{ flex: 1, opacity: 0.5, height: '0.5px', backgroundColor: '#ffffff', minWidth: 8 }} />
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <Chip
               label={`${activeCount} Active`}
