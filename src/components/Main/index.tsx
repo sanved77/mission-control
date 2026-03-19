@@ -9,7 +9,7 @@ export default function Main() {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        bgcolor: '#1E2128',
+        bgcolor: 'var(--main-content-bg)',
       }}
     >
       <SearchBar />

@@ -33,7 +33,7 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
             fontWeight: 900,
             letterSpacing: '-0.05em',
             textTransform: 'uppercase',
-            color: '#F43F5E',
+            color: 'var(--projects-blockers-color)',
           }}
         >
           Blockers
@@ -48,9 +48,9 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
               height: 24,
               flexShrink: 0,
               borderRadius: '50%',
-              color: '#ffffff',
-              bgcolor: '#F43F5E',
-              '&:hover': { bgcolor: '#F43F5E', opacity: 0.9 },
+              color: 'var(--color-on-accent)',
+              bgcolor: 'var(--projects-blockers-color)',
+              '&:hover': { bgcolor: 'var(--projects-blockers-color)', opacity: 0.9 },
             }}
             aria-label="Add blocker"
           >
@@ -67,16 +67,16 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
               height: 24,
               flexShrink: 0,
               borderRadius: '50%',
-              color: '#ffffff',
-              bgcolor: '#F43F5E',
-              '&:hover': { bgcolor: '#F43F5E', opacity: 0.9 },
+              color: 'var(--color-on-accent)',
+              bgcolor: 'var(--projects-blockers-color)',
+              '&:hover': { bgcolor: 'var(--projects-blockers-color)', opacity: 0.9 },
             }}
             aria-label={showDismissed ? 'Hide dismissed blockers' : 'Show dismissed blockers'}
           >
             {showDismissed ? <Visibility sx={{ fontSize: 18 }} /> : <VisibilityOff sx={{ fontSize: 18 }} />}
           </IconButton>
         )}
-        <Box sx={{ flex: 1, opacity: 0.5, height: '0.5px', backgroundColor: '#F43F5E', minWidth: 8 }} />
+        <Box sx={{ flex: 1, opacity: 0.5, height: '0.5px', backgroundColor: 'var(--projects-blockers-color)', minWidth: 8 }} />
       </Box>
       {(showDismissed ? blockers : visible).length > 0 && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -91,8 +91,8 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
                   gap: 1,
                   p: 1.5,
                   borderRadius: 3,
-                  bgcolor: 'rgba(229, 115, 115, 0.15)',
-                  border: '1px solid rgba(229, 115, 115, 0.3)',
+                  bgcolor: 'var(--blockers-item-bg)',
+                  border: '1px solid var(--blockers-item-border)',
                 }}
               >
                 <Typography variant="body2" sx={{ color: 'var(--scratchpad-text)', flex: 1 }}>

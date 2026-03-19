@@ -40,7 +40,7 @@ export default function QuestionsSection({
             fontWeight: 900,
             letterSpacing: "-0.05em",
             textTransform: "uppercase",
-            color: "#FB923C",
+            color: "var(--projects-questions-color)",
           }}
         >
           Open Questions
@@ -56,10 +56,10 @@ export default function QuestionsSection({
               height: 24,
               flexShrink: 0,
               borderRadius: "50%",
-              color: "#ffffff",
-              bgcolor: "#FB923C",
+              color: "var(--color-on-accent)",
+              bgcolor: "var(--projects-questions-color)",
               "&:hover": {
-                bgcolor: "#FB923C",
+                bgcolor: "var(--projects-questions-color)",
                 opacity: 0.9,
               },
             }}
@@ -73,7 +73,7 @@ export default function QuestionsSection({
             flex: 1,
             opacity: 0.5,
             height: "0.5px",
-            backgroundColor: "#FB923C",
+            backgroundColor: "var(--projects-questions-color)",
             minWidth: 8,
           }}
         />
@@ -88,7 +88,7 @@ export default function QuestionsSection({
                 alignItems: "flex-start",
                 gap: 1,
                 p: 1.5,
-                borderLeft: "4px solid #FB923C",
+                borderLeft: "4px solid var(--projects-questions-color)",
                 bgcolor: "var(--tasks-panel-bg)",
               }}
             >
@@ -115,7 +115,7 @@ export default function QuestionsSection({
                   sx={{
                     fontSize: 18,
                     color: resolved.has(i)
-                      ? "#4caf50"
+                      ? "var(--tasks-complete-color)"
                       : "var(--scratchpad-text-muted)",
                   }}
                 />

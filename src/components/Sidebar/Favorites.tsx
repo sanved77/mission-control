@@ -1,10 +1,15 @@
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material'
 
 /* Stub: will be replaced by Redux later. */
+const FAVORITE_COLORS: Record<string, string> = {
+  '1': 'var(--favorite-color-1)',
+  '2': 'var(--favorite-color-2)',
+  '3': 'var(--favorite-color-3)',
+}
 const STUB_FAVORITES = [
-  { id: '1', name: 'API Refactor', color: '#00a3ff' },
-  { id: '2', name: 'Dashboard Redesign', color: '#7c4dff' },
-  { id: '3', name: 'Auth Flow', color: '#00bfa5' },
+  { id: '1', name: 'API Refactor' },
+  { id: '2', name: 'Dashboard Redesign' },
+  { id: '3', name: 'Auth Flow' },
 ]
 
 export default function Favorites() {
@@ -26,7 +31,7 @@ export default function Favorites() {
         FAVORITES
       </Typography>
       <List disablePadding dense>
-        {STUB_FAVORITES.map(({ id, name, color }) => (
+        {STUB_FAVORITES.map(({ id, name }) => (
           <ListItemButton
             key={id}
             component="a"
@@ -47,7 +52,7 @@ export default function Favorites() {
                   width: 10,
                   height: 10,
                   borderRadius: '50%',
-                  backgroundColor: color,
+                  backgroundColor: FAVORITE_COLORS[id] ?? 'var(--favorite-color-1)',
                 }}
               />
             </ListItemIcon>

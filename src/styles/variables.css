@@ -1,5 +1,29 @@
 /* App and sidebar color palette – use var(--name) in components */
 :root {
+  /* Button/icon text on colored backgrounds */
+  --color-on-accent: #ffffff;
+
+  /* App root */
+  --app-bg: #ffffff;
+  --app-text: #213547;
+  --app-bg-dark: #242424;
+  --app-text-dark: rgba(255, 255, 255, 0.87);
+
+  /* Resize handle */
+  --resize-handle-hover: rgba(255, 255, 255, 0.08);
+
+  /* SearchBar */
+  --searchbar-shortcut-bg: #363d48;
+
+  /* Layout */
+  --main-content-bg: #1e2128;
+  --logboard-bg: #7ba37b;
+
+  /* Favorites */
+  --favorite-color-1: #00a3ff;
+  --favorite-color-2: #7c4dff;
+  --favorite-color-3: #00bfa5;
+
   --sidebar-bg: #091113;
   --sidebar-text: #e0e6f0;
   --sidebar-nav-text: #94a3b8;
@@ -24,9 +48,24 @@
   --projects-metric-color: #0FA6F2;
   --projects-inactive: #1E293B;
   --projects-inactive-text: #94A3B8;
+  --projects-blockers-color: #F43F5E;
+  --projects-questions-color: #FB923C;
+  --projects-error-color: #E67373;
+
+  /* Blockers */
+  --blockers-item-bg: rgba(229, 115, 115, 0.15);
+  --blockers-item-border: rgba(229, 115, 115, 0.3);
 
   /* Task checkboxes */
   --tasks-complete-color: #4caf50;
   --tasks-archived-color: #c9ac28;
   --tasks-panel-bg: #15232B;
+  --tasks-highlight-bg: rgba(15, 166, 242, 0.18);
+
+  /* Link type icon colors */
+  --link-type-telemetry: #4caf50;
+  --link-type-docs: #2196f3;
+  --link-type-design: #e57373;
+  --link-type-tool: #ffc107;
+  --link-type-other: #ffffff;
 }

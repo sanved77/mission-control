@@ -114,7 +114,7 @@ function RootDropZone({
         boxSizing: "border-box",
         ...(isOver
           ? {
-              backgroundColor: "rgba(15, 166, 242, 0.18)",
+              backgroundColor: "var(--tasks-highlight-bg)",
             }
           : {
               backgroundColor: "transparent",
@@ -225,7 +225,7 @@ export default function TasksPanel({ tasks, projectId }: TasksPanelProps) {
               fontWeight: 900,
               letterSpacing: "-0.05em",
               textTransform: "uppercase",
-              color: "#ffffff",
+              color: "var(--color-on-accent)",
             }}
           >
             Tasks

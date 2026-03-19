@@ -33,23 +33,23 @@ const TYPE_CONFIG: Record<
   },
   Telemetry: {
     Icon: ShowChart,
-    iconColor: "#4caf50",
+    iconColor: "var(--link-type-telemetry)",
   },
   Docs: {
     Icon: Description,
-    iconColor: "#2196f3",
+    iconColor: "var(--link-type-docs)",
   },
   Design: {
     Icon: Palette,
-    iconColor: "#e57373",
+    iconColor: "var(--link-type-design)",
   },
   Tool: {
     Icon: Build,
-    iconColor: "#ffc107",
+    iconColor: "var(--link-type-tool)",
   },
   Other: {
     Icon: LinkIcon,
-    iconColor: "#ffffff",
+    iconColor: "var(--link-type-other)",
   },
 };
 
@@ -153,7 +153,7 @@ export default function LinksSection({
               height: 24,
               flexShrink: 0,
               borderRadius: "50%",
-              color: "#ffffff",
+              color: "var(--color-on-accent)",
               bgcolor: "var(--projects-metric-color)",
               "&:hover": { bgcolor: "var(--projects-metric-color)", opacity: 0.9 },
             }}

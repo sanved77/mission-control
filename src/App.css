@@ -1,13 +1,13 @@
 :root {
   color-scheme: light;
-  background-color: #ffffff;
-  color: #213547;
+  background-color: var(--app-bg);
+  color: var(--app-text);
 }
 
 /* @media (prefers-color-scheme: dark) {
   :root {
-    background-color: #242424;
-    color: rgba(255, 255, 255, 0.87);
+    background-color: var(--app-bg-dark);
+    color: var(--app-text-dark);
   }
 } */
 

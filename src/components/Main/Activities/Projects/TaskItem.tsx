@@ -166,7 +166,7 @@ export default function TaskItem({
             : {}),
           ...(isOver
             ? {
-                backgroundColor: "rgba(15, 166, 242, 0.18)",
+                backgroundColor: "var(--tasks-highlight-bg)",
                 borderColor: "var(--projects-metric-color)",
               }
             : {}),

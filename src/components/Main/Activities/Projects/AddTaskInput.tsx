@@ -92,7 +92,7 @@ export default function AddTaskInput({
 
   const actionButtonSx = isProjects
     ? {
-        color: '#ffffff',
+        color: 'var(--color-on-accent)',
         p: 0.25,
         bgcolor: 'var(--projects-metric-color)',
         '&:hover': {

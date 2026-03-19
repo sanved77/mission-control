@@ -6,7 +6,7 @@ import Delete from "@mui/icons-material/Delete";
 import type { Task } from "../../../../types/projects";
 
 const accentButtonSx = {
-  color: "#ffffff",
+  color: "var(--color-on-accent)",
   p: 0.25,
   mt: 0.25,
   bgcolor: "var(--projects-metric-color)",
@@ -17,12 +17,12 @@ const accentButtonSx = {
 } as const;
 
 const deleteButtonSx = {
-  color: "#ffffff",
+  color: "var(--color-on-accent)",
   p: 0.25,
   mt: 0.25,
-  bgcolor: "#E67373",
+  bgcolor: "var(--projects-error-color)",
   "&:hover": {
-    bgcolor: "#E67373",
+    bgcolor: "var(--projects-error-color)",
   },
   borderRadius: "4px",
 } as const;

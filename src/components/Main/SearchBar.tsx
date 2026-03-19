@@ -36,8 +36,8 @@ export default function SearchBar() {
                 sx={{
                   fontFamily: '"SF Mono", Consolas, Monaco, monospace',
                   fontSize: 13,
-                  color: '#A0A0A0',
-                  backgroundColor: '#363d48',
+                  color: 'var(--scratchpad-text-muted)',
+                  backgroundColor: 'var(--searchbar-shortcut-bg)',
                   borderRadius: 3,
                   px: 1,
                   py: 0.25,
@@ -52,10 +52,10 @@ export default function SearchBar() {
                 borderRadius: 9999,
                 '& fieldset': { border: 'none' },
                 '& input': {
-                  color: '#E0E0E0',
+                  color: 'var(--scratchpad-text)',
                   py: 1.25,
                   '&::placeholder': {
-                    color: '#A0A0A0',
+                    color: 'var(--scratchpad-text-muted)',
                     opacity: 1,
                   },
                 },

@@ -262,7 +262,7 @@ export default function Projects() {
               {errorText ? (
                 <Typography
                   variant="caption"
-                  sx={{ color: "#E67373", display: "block", mt: 0.5 }}
+                  sx={{ color: "var(--projects-error-color)", display: "block", mt: 0.5 }}
                 >
                   {errorText}
                 </Typography>

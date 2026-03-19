@@ -22,5 +22,5 @@ body {
   transform: none !important;
 }
 .mission-control-resize-handle:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--resize-handle-hover);
 }

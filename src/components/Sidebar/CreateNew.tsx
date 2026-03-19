@@ -11,7 +11,7 @@ export default function CreateNew() {
         py: 1.25,
         borderRadius: 3,
         backgroundColor: 'var(--sidebar-accent)',
-        color: '#fff',
+        color: 'var(--color-on-accent)',
         fontWeight: 600,
         textTransform: 'none',
         '&:hover': {
