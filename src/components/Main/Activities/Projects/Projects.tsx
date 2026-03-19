@@ -4,6 +4,7 @@ import Edit from "@mui/icons-material/Edit";
 import Check from "@mui/icons-material/Check";
 import { useTasks } from "../../../../hooks/useTasks";
 import { useProjects } from "../../../../hooks/useProjects";
+import { useSnackbarContext } from "../../../../contexts/useSnackbarContext";
 import { TaskActionsProvider } from "./TaskActionsProvider";
 import TasksPanel from "./TasksPanel";
 import BlockersSection from "./BlockersSection";
@@ -24,9 +25,12 @@ export default function Projects() {
   const {
     projects,
     setBlockerDismissed,
+    addBlocker,
+    addQuestion,
     updateProjectName,
     updateProjectDescription,
   } = useProjects();
+  const { showSnackbar } = useSnackbarContext();
   const selectedProjectId = projects[0]?.id ?? "";
   const selectedProject = useMemo(
     () => projects.find((p) => p.id === selectedProjectId),
@@ -305,8 +309,18 @@ export default function Projects() {
               onDismissBlocker={(i) =>
                 setBlockerDismissed(selectedProjectId, i)
               }
+              onAddBlocker={(text) => {
+                addBlocker(selectedProjectId, text);
+                showSnackbar("success", "Blocker added");
+              }}
             />
-            <QuestionsSection questions={selectedProject.questions} />
+            <QuestionsSection
+              questions={selectedProject.questions}
+              onAddQuestion={(text) => {
+                addQuestion(selectedProjectId, text);
+                showSnackbar("success", "Question added");
+              }}
+            />
             <LinksSection links={selectedProject.links} />
           </>
         ) : null}

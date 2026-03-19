@@ -68,10 +68,10 @@ function sortTasksIncompleteFirst(
   taskMap: Map<string, Task>,
 ): Task[] {
   const incomplete = tasks
-    .filter((t) => !isCompleted(t, taskMap))
+    .filter((t) => isCompleted(t, taskMap) === 'incomplete')
     .sort((a, b) => a.createdOn - b.createdOn);
   const complete = tasks
-    .filter((t) => isCompleted(t, taskMap))
+    .filter((t) => isCompleted(t, taskMap) !== 'incomplete')
     .sort((a, b) => a.createdOn - b.createdOn);
   return [...incomplete, ...complete];
 }

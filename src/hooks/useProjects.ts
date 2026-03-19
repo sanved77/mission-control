@@ -80,6 +80,8 @@ function getFakeProjects(): Project[] {
 export function useProjects(): {
   projects: Project[]
   setBlockerDismissed: (projectId: string, blockerIndex: number) => void
+  addBlocker: (projectId: string, text: string) => void
+  addQuestion: (projectId: string, text: string) => void
   updateProjectName: (projectId: string, projectName: string) => void
   updateProjectDescription: (projectId: string, description: string) => void
 } {
@@ -107,6 +109,26 @@ export function useProjects(): {
     )
   }, [])
 
+  const addBlocker = useCallback((projectId: string, text: string) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p
+        const blockers = [...(p.blockers ?? []), { text }]
+        return { ...p, blockers }
+      })
+    )
+  }, [])
+
+  const addQuestion = useCallback((projectId: string, text: string) => {
+    setProjects((prev) =>
+      prev.map((p) => {
+        if (p.id !== projectId) return p
+        const questions = [...(p.questions ?? []), text]
+        return { ...p, questions }
+      })
+    )
+  }, [])
+
   const updateProjectName = useCallback((projectId: string, projectName: string) => {
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, projectName } : p)))
   }, [])
@@ -115,5 +137,5 @@ export function useProjects(): {
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, description } : p)))
   }, [])
 
-  return { projects, setBlockerDismissed, updateProjectName, updateProjectDescription }
+  return { projects, setBlockerDismissed, addBlocker, addQuestion, updateProjectName, updateProjectDescription }
 }
