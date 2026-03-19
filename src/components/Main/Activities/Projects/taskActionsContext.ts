@@ -18,6 +18,7 @@ export interface TaskActions {
     newParentTaskId: string | null,
   ) => void;
   archiveTask: (taskId: string, archived?: boolean) => void;
+  duplicateTask: (taskId: string) => void;
 }
 
 export const TaskActionsContext = createContext<TaskActions | null>(null);

@@ -88,6 +88,7 @@ export default function TaskItem({
     updateTask,
     deleteTask,
     archiveTask,
+    duplicateTask,
   } = useTaskActions();
   const [isHovered, setIsHovered] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -296,10 +297,22 @@ export default function TaskItem({
             addMode.setTaskAddMode(undefined);
         }}
         onDelete={() => setDeleteDialogOpen(true)}
+        onDuplicate={(taskId) => duplicateTask(taskId)}
       />
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            setDeleteDialogOpen(false);
+          }
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            deleteTask(task.id);
+            setDeleteDialogOpen(false);
+          }
+        }}
         aria-labelledby="delete-task-dialog-title"
         aria-describedby="delete-task-dialog-description"
       >

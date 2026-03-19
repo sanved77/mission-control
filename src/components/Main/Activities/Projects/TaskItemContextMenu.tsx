@@ -19,6 +19,7 @@ export interface TaskItemContextMenuProps {
   onAddSubtask: () => void;
   onToggleArchive: () => void;
   onDelete: () => void;
+  onDuplicate: (taskId: string) => void;
 }
 
 export default function TaskItemContextMenu({
@@ -29,6 +30,7 @@ export default function TaskItemContextMenu({
   onAddSubtask,
   onToggleArchive,
   onDelete,
+  onDuplicate,
 }: TaskItemContextMenuProps) {
   const archived = task.isArchived ?? false;
 
@@ -48,6 +50,7 @@ export default function TaskItemContextMenu({
   };
 
   const handleDuplicate = () => {
+    onDuplicate(task.id);
     onClose();
   };
 

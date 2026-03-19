@@ -19,6 +19,7 @@ export default function Projects() {
     deleteTask,
     moveTask,
     archiveTask,
+    duplicateTask,
   } = useTasks();
   const {
     projects,
@@ -279,6 +280,7 @@ export default function Projects() {
                 deleteTask,
                 moveTask,
                 archiveTask,
+                duplicateTask,
               }),
               [
                 setTaskComplete,
@@ -287,6 +289,7 @@ export default function Projects() {
                 deleteTask,
                 moveTask,
                 archiveTask,
+                duplicateTask,
               ],
             )}
           >

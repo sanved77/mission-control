@@ -121,6 +121,42 @@ function collectTaskAndDescendantIds(taskId: string, tasks: Task[]): Set<string>
   return set
 }
 
+function findParentTaskId(taskId: string, tasks: Task[]): string | null {
+  for (const t of tasks) {
+    if (t.subTasks?.includes(taskId)) return t.id
+  }
+  return null
+}
+
+function duplicateTaskRecursive(
+  task: Task,
+  tasks: Task[],
+  idMap: Map<string, string>,
+  newTasks: Task[],
+): Task {
+  const newId = crypto.randomUUID()
+  idMap.set(task.id, newId)
+  const newSubTaskIds: string[] = []
+  for (const childId of task.subTasks ?? []) {
+    const child = tasks.find((t) => t.id === childId)
+    if (child) {
+      const newChild = duplicateTaskRecursive(child, tasks, idMap, newTasks)
+      newSubTaskIds.push(newChild.id)
+    }
+  }
+  const newTask: Task = {
+    id: newId,
+    content: task.content,
+    createdOn: Date.now(),
+    projectID: task.projectID,
+    deadlineOn: task.deadlineOn,
+    subTasks: newSubTaskIds,
+    isArchived: false,
+  }
+  newTasks.push(newTask)
+  return newTask
+}
+
 export function useTasks(): {
   tasks: Task[]
   setTaskComplete: (taskId: string, isComplete: boolean, completeSubtasks?: boolean) => void
@@ -129,6 +165,7 @@ export function useTasks(): {
   deleteTask: (taskId: string) => void
   moveTask: (draggedTaskId: string, newParentTaskId: string | null) => void
   archiveTask: (taskId: string, archived?: boolean) => void
+  duplicateTask: (taskId: string) => void
 } {
   const [tasks, setTasks] = useState<Task[]>(() => getTasksFromStorage() ?? getFakeTasks())
 
@@ -238,5 +275,43 @@ export function useTasks(): {
     })
   }, [])
 
-  return { tasks, setTaskComplete, addTask, updateTask, deleteTask, moveTask, archiveTask }
+  const duplicateTask = useCallback((taskId: string) => {
+    setTasks((prev) => {
+      const source = prev.find((t) => t.id === taskId)
+      if (!source) return prev
+      const parentId = findParentTaskId(taskId, prev)
+      const idMap = new Map<string, string>()
+      const newTasks: Task[] = []
+      const newRoot = duplicateTaskRecursive(source, prev, idMap, newTasks)
+      let next = [...prev, ...newTasks]
+      if (parentId != null) {
+        const parent = next.find((t) => t.id === parentId)
+        if (parent) {
+          const subTasks = parent.subTasks ?? []
+          const idx = subTasks.indexOf(taskId)
+          const insertIdx = idx >= 0 ? idx + 1 : subTasks.length
+          const newSubTasks = [
+            ...subTasks.slice(0, insertIdx),
+            newRoot.id,
+            ...subTasks.slice(insertIdx),
+          ]
+          next = next.map((t) =>
+            t.id === parentId ? { ...t, subTasks: newSubTasks } : t,
+          )
+        }
+      }
+      return next
+    })
+  }, [])
+
+  return {
+    tasks,
+    setTaskComplete,
+    addTask,
+    updateTask,
+    deleteTask,
+    moveTask,
+    archiveTask,
+    duplicateTask,
+  }
 }
