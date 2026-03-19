@@ -48,7 +48,7 @@ function getProjectCompletion(
   let total = ids.size;
   for (const id of ids) {
     const t = taskMap.get(id);
-    if (t && isCompleted(t, taskMap) === 'completed') completed++;
+    if (t && isCompleted(t, taskMap) === "completed") completed++;
   }
   return { completed, total };
 }
@@ -68,10 +68,10 @@ function sortTasksIncompleteFirst(
   taskMap: Map<string, Task>,
 ): Task[] {
   const incomplete = tasks
-    .filter((t) => isCompleted(t, taskMap) === 'incomplete')
+    .filter((t) => isCompleted(t, taskMap) === "incomplete")
     .sort((a, b) => a.createdOn - b.createdOn);
   const complete = tasks
-    .filter((t) => isCompleted(t, taskMap) !== 'incomplete')
+    .filter((t) => isCompleted(t, taskMap) !== "incomplete")
     .sort((a, b) => a.createdOn - b.createdOn);
   return [...incomplete, ...complete];
 }
@@ -133,10 +133,7 @@ function RootDropZone({
   );
 }
 
-export default function TasksPanel({
-  tasks,
-  projectId,
-}: TasksPanelProps) {
+export default function TasksPanel({ tasks, projectId }: TasksPanelProps) {
   const { addTask, moveTask } = useTaskActions();
   const { showSnackbar } = useSnackbarContext();
   const [taskAddMode, setTaskAddMode] = useState<string | "root" | undefined>(
@@ -145,7 +142,10 @@ export default function TasksPanel({
   const [editTaskId, setEditTaskId] = useState<string | undefined>(undefined);
   const [pendingMove, setPendingMove] = useState<PendingMove>(null);
   const [showArchived, setShowArchived] = useState(false);
-  const nonArchivedTasks = useMemo(() => tasks.filter((t) => !t.isArchived), [tasks]);
+  const nonArchivedTasks = useMemo(
+    () => tasks.filter((t) => !t.isArchived),
+    [tasks],
+  );
   const taskMap = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks]);
   const tasksForDisplay = showArchived ? tasks : nonArchivedTasks;
   const rootTasks = useMemo(
@@ -219,11 +219,18 @@ export default function TasksPanel({
           }}
         >
           <Typography
-            variant="h6"
-            sx={{ color: "var(--scratchpad-text)", fontWeight: 600 }}
+            sx={{
+              fontSize: 20,
+              fontFamily: '"Inter", sans-serif',
+              fontWeight: 900,
+              letterSpacing: "-0.05em",
+              textTransform: "uppercase",
+              color: "#ffffff",
+            }}
           >
             Tasks
           </Typography>
+          <Box sx={{ flex: 1, opacity: 0.5, height: '0.5px', backgroundColor: '#ffffff', minWidth: 8 }} />
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             <Chip
               label={`${activeCount} Active`}
@@ -259,7 +266,9 @@ export default function TasksPanel({
                 color: "var(--scratchpad-text-muted)",
                 textTransform: "none",
               }}
-              aria-label={showArchived ? "Hide archived tasks" : "Show archived tasks"}
+              aria-label={
+                showArchived ? "Hide archived tasks" : "Show archived tasks"
+              }
             >
               Archive
             </Button>
@@ -283,7 +292,11 @@ export default function TasksPanel({
           <Box
             sx={{
               flex: 1,
+              gap: 2,
+              p: 2,
+              borderRadius: 2,
               minHeight: 0,
+              bgcolor: "var(--tasks-panel-bg)",
             }}
           >
             <Box

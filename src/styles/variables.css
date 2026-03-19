@@ -28,4 +28,5 @@
   /* Task checkboxes */
   --tasks-complete-color: #4caf50;
   --tasks-archived-color: #c9ac28;
+  --tasks-panel-bg: #15232B;
 }

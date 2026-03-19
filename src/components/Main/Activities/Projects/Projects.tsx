@@ -84,7 +84,7 @@ export default function Projects() {
           minWidth: 0,
           overflow: "hidden",
           p: 2,
-          borderRight: "1px solid var(--scratchpad-separator)",
+          // borderRight: "1px solid var(--scratchpad-separator)",
           display: "flex",
           flexDirection: "column",
         }}

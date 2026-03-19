@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Box, IconButton, Typography } from '@mui/material'
 import Add from '@mui/icons-material/Add'
-import CancelOutlined from '@mui/icons-material/CancelOutlined'
-import Close from '@mui/icons-material/Close'
+import ClearAll from '@mui/icons-material/ClearAll'
 import type { BlockerEntry } from '../../../../types/projects'
 import ContentAddDialog from './ContentAddDialog'
 
@@ -20,35 +19,42 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
   return (
     <Box sx={{ mb: 3 }}>
       <Box
-        sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}
+        sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}
         onMouseEnter={() => setHoveredOn(true)}
         onMouseLeave={() => setHoveredOn(false)}
       >
-        <CancelOutlined sx={{ fontSize: 18, color: '#e57373' }} />
-        <Typography variant="subtitle2" sx={{ color: 'var(--scratchpad-text)', fontWeight: 600 }}>
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontFamily: '"Inter", sans-serif',
+            fontWeight: 900,
+            letterSpacing: '-0.05em',
+            textTransform: 'uppercase',
+            color: '#F43F5E',
+          }}
+        >
           Blockers
         </Typography>
-        {onAddBlocker && (
-          <Box sx={{ width: 24, height: 24, flexShrink: 0, pl: 0.5 }}>
-            <IconButton
-              size="small"
-              onClick={() => setDialogOpen(true)}
-              sx={{
-                p: 0.5,
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                visibility: hoveredOn ? 'visible' : 'hidden',
-                color: '#ffffff',
-                bgcolor: 'var(--projects-metric-color)',
-                '&:hover': { bgcolor: 'var(--projects-metric-color)', opacity: 0.9 },
-              }}
-              aria-label="Add blocker"
-            >
-              <Add sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Box>
+        {onAddBlocker && hoveredOn && (
+          <IconButton
+            size="small"
+            onClick={() => setDialogOpen(true)}
+            sx={{
+              p: 0.5,
+              width: 24,
+              height: 24,
+              flexShrink: 0,
+              borderRadius: '50%',
+              color: '#ffffff',
+              bgcolor: 'var(--projects-metric-color)',
+              '&:hover': { bgcolor: 'var(--projects-metric-color)', opacity: 0.9 },
+            }}
+            aria-label="Add blocker"
+          >
+            <Add sx={{ fontSize: 18 }} />
+          </IconButton>
         )}
+        <Box sx={{ flex: 1, opacity: 0.5, height: '0.5px', backgroundColor: '#F43F5E', minWidth: 8 }} />
       </Box>
       {visible.length > 0 && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -76,7 +82,7 @@ export default function BlockersSection({ blockers, onDismissBlocker, onAddBlock
                   sx={{ p: 0.25, color: 'var(--scratchpad-text-muted)' }}
                   aria-label="Dismiss blocker"
                 >
-                  <Close sx={{ fontSize: 18 }} />
+                  <ClearAll sx={{ fontSize: 18 }} />
                 </IconButton>
               </Box>
             )

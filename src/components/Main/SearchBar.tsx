@@ -12,6 +12,7 @@ export default function SearchBar() {
         flexDirection: 'column',
         px: 2,
         justifyContent: 'center',
+        backgroundColor: 'var(--projects-bg)',
       }}
     >
       <Box
@@ -47,7 +48,7 @@ export default function SearchBar() {
                 </Box>
               ),
               sx: {
-                bgcolor: '#282D38',
+                bgcolor: 'var(--tasks-panel-bg)',
                 borderRadius: 9999,
                 '& fieldset': { border: 'none' },
                 '& input': {
