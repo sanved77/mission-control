@@ -60,6 +60,7 @@ export function useProjects(): {
   deleteLink: (projectId: string, linkId: string) => void
   updateProjectName: (projectId: string, projectName: string) => void
   updateProjectDescription: (projectId: string, description: string) => void
+  createProject: (projectName: string, description: string) => string
 } {
   const [projects, setProjects] = useState<Project[]>(() => getProjectsFromStorage() ?? [])
 
@@ -142,6 +143,26 @@ export function useProjects(): {
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, description } : p)))
   }, [])
 
+  const createProject = useCallback((projectName: string, description: string) => {
+    const name = projectName.trim()
+    const desc = description.trim()
+    const id = crypto.randomUUID()
+    const now = Date.now()
+    const oneYearMs = 365 * 24 * 60 * 60 * 1000
+    const newProject: Project = {
+      id,
+      projectName: name,
+      description: desc,
+      blockers: [],
+      questions: [],
+      links: [],
+      createdOn: now,
+      deadlineOn: now + oneYearMs,
+    }
+    setProjects((prev) => [...prev, newProject])
+    return id
+  }, [])
+
   return {
     projects,
     setBlockerDismissed,
@@ -152,5 +173,6 @@ export function useProjects(): {
     deleteLink,
     updateProjectName,
     updateProjectDescription,
+    createProject,
   }
 }
