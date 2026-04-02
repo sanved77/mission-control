@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -42,6 +42,7 @@ import {
   getDisplayStatus,
   statusPillSx,
 } from "./projectStatusDisplay";
+import { formatProjectDeadlineRemaining } from "../../../../utils/projectDeadlineRemaining";
 
 const PAGE_SIZE = 10;
 const ALL_STATUSES: ProjectStatus[] = ["Open", "Close", "Paused", "Blocked"];
@@ -58,8 +59,11 @@ function activeBlockerCount(project: Project): number {
   return project.blockers.filter((b) => !b.dismissed).length;
 }
 
+type ProjectsLocationState = { openCreateProject?: boolean } | null;
+
 export default function ProjectHome() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { tasks } = useTasks();
   const {
     projects,
@@ -85,6 +89,13 @@ export default function ProjectHome() {
     endDate: new Date(),
     key: "selection",
   });
+
+  useEffect(() => {
+    const state = location.state as ProjectsLocationState;
+    if (!state?.openCreateProject) return;
+    navigate(".", { replace: true, state: {} });
+    queueMicrotask(() => setDialogOpen(true));
+  }, [location, navigate]);
 
   const taskMap = useMemo(() => new Map(tasks.map((t) => [t.id, t])), [tasks]);
   const nonArchivedTasks = useMemo(
@@ -262,6 +273,10 @@ export default function ProjectHome() {
                 total > 0 ? Math.round((completed / total) * 100) : 0;
               const blockers = activeBlockerCount(project);
               const qCount = project.questions.length;
+              const deadlineLabel =
+                project.deadlineOn != null
+                  ? formatProjectDeadlineRemaining(project.deadlineOn)
+                  : null;
 
               return (
                 <Box
@@ -301,9 +316,9 @@ export default function ProjectHome() {
                   >
                     <Box
                       sx={{
-                        flex: "1 1 0",
+                        flex: "1 1 70%",
                         minWidth: 120,
-                        maxWidth: "80%",
+                        maxWidth: "70%",
                         display: "flex",
                         alignItems: "center",
                         gap: 1,
@@ -333,6 +348,46 @@ export default function ProjectHome() {
                         }}
                       >
                         {percent}%
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                        flex: "0 1 auto",
+                        minWidth: 0,
+                        maxWidth: 200,
+                      }}
+                    >
+                      <CalendarMonth
+                        sx={{
+                          fontSize: 16,
+                          flexShrink: 0,
+                          color:
+                            deadlineLabel === "Overdue"
+                              ? "var(--projects-error-color)"
+                              : "var(--scratchpad-text-muted)",
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color:
+                            deadlineLabel == null
+                              ? "var(--scratchpad-text-muted)"
+                              : deadlineLabel === "Overdue"
+                                ? "var(--projects-error-color)"
+                                : "var(--scratchpad-text)",
+                          fontWeight: 600,
+                          lineHeight: 1.3,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {deadlineLabel ?? "No deadline"}
                       </Typography>
                     </Box>
 
@@ -414,18 +469,36 @@ export default function ProjectHome() {
       </Box>
 
       {/* Default list */}
-      <Typography
+      <Box
         sx={{
-          fontSize: 18,
-          fontWeight: 800,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-          color: "var(--scratchpad-text-muted)",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
           mb: 1.5,
         }}
       >
-        All projects
-      </Typography>
+        <Typography
+          sx={{
+            fontSize: 20,
+            fontFamily: '"Inter", sans-serif',
+            fontWeight: 900,
+            letterSpacing: "-0.05em",
+            textTransform: "uppercase",
+            color: "#FACC15",
+          }}
+        >
+          All projects
+        </Typography>
+        <Box
+          sx={{
+            flex: 1,
+            opacity: 0.5,
+            height: "0.5px",
+            backgroundColor: "#FACC15",
+            minWidth: 8,
+          }}
+        />
+      </Box>
 
       <Box
         sx={{
@@ -694,7 +767,12 @@ export default function ProjectHome() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+                        const wasTracked = isProjectTracked(project.id);
                         toggleTrackedProject(project.id);
+                        showSnackbar(
+                          "success",
+                          wasTracked ? "Project untracked" : "Project tracked",
+                        );
                       }}
                       sx={{
                         color: tracked

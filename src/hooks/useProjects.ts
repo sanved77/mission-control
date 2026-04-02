@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { LinkObj, Project, ProjectStatus } from '../types/projects'
-import { readTrackedStorage, writeTrackedProjects } from '../utils/trackedStorage'
+import { readTrackedStorage, writeTrackedLinks, writeTrackedProjects } from '../utils/trackedStorage'
 
 const STORAGE_KEY = 'projects'
 
@@ -34,6 +34,11 @@ function isValidProject(item: unknown): item is Project {
     (typeof o.status !== 'string' || !PROJECT_STATUSES.includes(o.status as ProjectStatus))
   )
     return false
+  if (
+    o.deadlineOn !== undefined &&
+    (typeof o.deadlineOn !== 'number' || Number.isNaN(o.deadlineOn))
+  )
+    return false
   return (o.blockers as unknown[]).every(isValidBlockerEntry)
 }
 
@@ -63,6 +68,9 @@ export function useProjects(): {
   trackedProjectIds: string[]
   toggleTrackedProject: (projectId: string) => void
   isProjectTracked: (projectId: string) => boolean
+  trackedLinkIds: string[]
+  toggleTrackedLink: (linkId: string) => void
+  isLinkTracked: (linkId: string) => boolean
   setBlockerDismissed: (projectId: string, blockerIndex: number) => void
   addBlocker: (projectId: string, text: string) => void
   addQuestion: (projectId: string, text: string) => void
@@ -72,11 +80,19 @@ export function useProjects(): {
   updateProjectName: (projectId: string, projectName: string) => void
   updateProjectDescription: (projectId: string, description: string) => void
   updateProjectStatus: (projectId: string, status: ProjectStatus) => void
-  createProject: (projectName: string, description: string) => string
+  updateProjectDeadline: (projectId: string, deadlineOn: number | undefined) => void
+  createProject: (
+    projectName: string,
+    description: string,
+    deadlineOnMs?: number,
+  ) => string
 } {
   const [projects, setProjects] = useState<Project[]>(() => getProjectsFromStorage() ?? [])
   const [trackedProjectIds, setTrackedProjectIds] = useState<string[]>(
     () => readTrackedStorage().projects ?? [],
+  )
+  const [trackedLinkIds, setTrackedLinkIds] = useState<string[]>(
+    () => readTrackedStorage().links ?? [],
   )
 
   useEffect(() => {
@@ -89,6 +105,11 @@ export function useProjects(): {
     window.dispatchEvent(new CustomEvent('missioncontrol-projects-updated'))
   }, [trackedProjectIds])
 
+  useEffect(() => {
+    writeTrackedLinks(trackedLinkIds)
+    window.dispatchEvent(new CustomEvent('missioncontrol-projects-updated'))
+  }, [trackedLinkIds])
+
   const toggleTrackedProject = useCallback((projectId: string) => {
     setTrackedProjectIds((prev) =>
       prev.includes(projectId) ? prev.filter((id) => id !== projectId) : [...prev, projectId],
@@ -98,6 +119,17 @@ export function useProjects(): {
   const isProjectTracked = useCallback(
     (projectId: string) => trackedProjectIds.includes(projectId),
     [trackedProjectIds],
+  )
+
+  const toggleTrackedLink = useCallback((linkId: string) => {
+    setTrackedLinkIds((prev) =>
+      prev.includes(linkId) ? prev.filter((id) => id !== linkId) : [...prev, linkId],
+    )
+  }, [])
+
+  const isLinkTracked = useCallback(
+    (linkId: string) => trackedLinkIds.includes(linkId),
+    [trackedLinkIds],
   )
 
   const setBlockerDismissed = useCallback((projectId: string, blockerIndex: number) => {
@@ -163,8 +195,9 @@ export function useProjects(): {
         if (p.id !== projectId) return p
         const links = (p.links ?? []).filter((l) => l.id !== linkId)
         return { ...p, links }
-      })
+      }),
     )
+    setTrackedLinkIds((prev) => prev.filter((id) => id !== linkId))
   }, [])
 
   const updateProjectName = useCallback((projectId: string, projectName: string) => {
@@ -179,32 +212,45 @@ export function useProjects(): {
     setProjects((prev) => prev.map((p) => (p.id === projectId ? { ...p, status } : p)))
   }, [])
 
-  const createProject = useCallback((projectName: string, description: string) => {
-    const name = projectName.trim()
-    const desc = description.trim()
-    const id = crypto.randomUUID()
-    const now = Date.now()
-    const oneYearMs = 365 * 24 * 60 * 60 * 1000
-    const newProject: Project = {
-      id,
-      projectName: name,
-      description: desc,
-      blockers: [],
-      questions: [],
-      links: [],
-      createdOn: now,
-      deadlineOn: now + oneYearMs,
-      status: 'Open',
-    }
-    setProjects((prev) => [...prev, newProject])
-    return id
+  const updateProjectDeadline = useCallback((projectId: string, deadlineOn: number | undefined) => {
+    setProjects((prev) =>
+      prev.map((p) => (p.id === projectId ? { ...p, deadlineOn } : p)),
+    )
   }, [])
+
+  const createProject = useCallback(
+    (projectName: string, description: string, deadlineOnMs?: number) => {
+      const name = projectName.trim()
+      const desc = description.trim()
+      const id = crypto.randomUUID()
+      const now = Date.now()
+      const hasDeadline =
+        deadlineOnMs !== undefined && !Number.isNaN(deadlineOnMs)
+      const newProject: Project = {
+        id,
+        projectName: name,
+        description: desc,
+        blockers: [],
+        questions: [],
+        links: [],
+        createdOn: now,
+        status: 'Open',
+        ...(hasDeadline ? { deadlineOn: deadlineOnMs } : {}),
+      }
+      setProjects((prev) => [...prev, newProject])
+      return id
+    },
+    [],
+  )
 
   return {
     projects,
     trackedProjectIds,
     toggleTrackedProject,
     isProjectTracked,
+    trackedLinkIds,
+    toggleTrackedLink,
+    isLinkTracked,
     setBlockerDismissed,
     addBlocker,
     addQuestion,
@@ -214,6 +260,7 @@ export function useProjects(): {
     updateProjectName,
     updateProjectDescription,
     updateProjectStatus,
+    updateProjectDeadline,
     createProject,
   }
 }

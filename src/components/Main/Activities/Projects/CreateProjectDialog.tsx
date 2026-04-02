@@ -7,14 +7,30 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
+import { endOfDay } from "../../../../utils/dateRangeFilter";
 
 const MAX_NAME_LENGTH = 200;
 const MAX_DESC_LENGTH = 1000;
 
+function parseDeadlineDate(isoDate: string): Date | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate.trim());
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]) - 1;
+  const day = Number(m[3]);
+  const date = new Date(y, mo, day);
+  if (Number.isNaN(date.getTime())) return null;
+  return date;
+}
+
 export interface CreateProjectDialogProps {
   open: boolean;
   onClose: () => void;
-  createProject: (projectName: string, description: string) => string;
+  createProject: (
+    projectName: string,
+    description: string,
+    deadlineOnMs?: number,
+  ) => string;
   onCreated: (projectId: string) => void;
 }
 
@@ -26,8 +42,10 @@ export default function CreateProjectDialog({
 }: CreateProjectDialogProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [deadlineDate, setDeadlineDate] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
   const [descError, setDescError] = useState<string | null>(null);
+  const [deadlineError, setDeadlineError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -35,6 +53,9 @@ export default function CreateProjectDialog({
       setDescription("");
       setNameError(null);
       setDescError(null);
+    } else {
+      setDeadlineDate("");
+      setDeadlineError(null);
     }
   }, [open]);
 
@@ -46,7 +67,11 @@ export default function CreateProjectDialog({
   const descValid =
     trimmedDesc.length > 0 &&
     trimmedDesc.length <= MAX_DESC_LENGTH;
-  const formValid = nameValid && descValid;
+  const trimmedDeadline = deadlineDate.trim();
+  const parsedDeadline =
+    trimmedDeadline === "" ? null : parseDeadlineDate(trimmedDeadline);
+  const deadlineValid = trimmedDeadline === "" || parsedDeadline != null;
+  const formValid = nameValid && descValid && deadlineValid;
 
   const validate = (): boolean => {
     let ok = true;
@@ -68,12 +93,27 @@ export default function CreateProjectDialog({
     } else {
       setDescError(null);
     }
+    if (trimmedDeadline !== "" && parsedDeadline == null) {
+      setDeadlineError("Choose a valid deadline date.");
+      ok = false;
+    } else {
+      setDeadlineError(null);
+    }
     return ok;
   };
 
   const handleSubmit = () => {
     if (!validate()) return;
-    const id = createProject(trimmedName, trimmedDesc);
+    const td = deadlineDate.trim();
+    const deadlineOnMs =
+      td === ""
+        ? undefined
+        : (() => {
+            const d = parseDeadlineDate(td);
+            if (d == null) return undefined;
+            return endOfDay(d).getTime();
+          })();
+    const id = createProject(trimmedName, trimmedDesc, deadlineOnMs);
     onCreated(id);
     onClose();
   };
@@ -119,6 +159,27 @@ export default function CreateProjectDialog({
             descError ?? `${trimmedDesc.length}/${MAX_DESC_LENGTH}`
           }
           slotProps={{ htmlInput: { maxLength: MAX_DESC_LENGTH } }}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          margin="dense"
+          label="Deadline (optional)"
+          type="date"
+          fullWidth
+          value={deadlineDate}
+          onChange={(e) => {
+            setDeadlineDate(e.target.value);
+            setDeadlineError(null);
+          }}
+          error={deadlineError != null}
+          helperText={
+            deadlineError ??
+            "Leave empty for no deadline; otherwise end of day in your local timezone"
+          }
+          slotProps={{
+            inputLabel: { shrink: true },
+            htmlInput: { "aria-label": "Project deadline (optional)" },
+          }}
         />
       </DialogContent>
       <DialogActions>

@@ -63,6 +63,8 @@ export interface LinksSectionProps {
   onAddLink?: (link: { label: string; url: string; type: string }) => void;
   onEditLink?: (linkId: string, update: { label: string; url: string; type: string }) => void;
   onDeleteLink?: (linkId: string) => void;
+  isLinkTracked?: (linkId: string) => boolean;
+  onToggleLinkTracked?: (linkId: string) => void;
 }
 
 export default function LinksSection({
@@ -70,6 +72,8 @@ export default function LinksSection({
   onAddLink,
   onEditLink,
   onDeleteLink,
+  isLinkTracked,
+  onToggleLinkTracked,
 }: LinksSectionProps) {
   const [hoveredOn, setHoveredOn] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -240,10 +244,19 @@ export default function LinksSection({
       <LinkContextMenu
         open={contextMenu !== null}
         contextMenu={contextMenu}
-        link={contextMenu?.link ?? ({ id: "", label: "", url: "" } as LinkObj)}
         onClose={handleCloseContextMenu}
         onEdit={handleEditFromMenu}
         onDelete={handleDeleteFromMenu}
+        isFavorite={
+          contextMenu != null && isLinkTracked != null
+            ? isLinkTracked(contextMenu.link.id)
+            : false
+        }
+        onFavoriteToggle={() => {
+          if (contextMenu != null && onToggleLinkTracked) {
+            onToggleLinkTracked(contextMenu.link.id);
+          }
+        }}
       />
       <Dialog
         open={deleteLink !== null}

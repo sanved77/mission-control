@@ -1,24 +1,26 @@
 import { ListItemIcon, Menu, MenuItem } from "@mui/material";
 import Delete from "@mui/icons-material/Delete";
 import Edit from "@mui/icons-material/Edit";
-import type { LinkObj } from "../../../../types/projects";
-
+import Star from "@mui/icons-material/Star";
+import StarBorder from "@mui/icons-material/StarBorder";
 export interface LinkContextMenuProps {
   open: boolean;
   contextMenu: { mouseX: number; mouseY: number } | null;
-  link: LinkObj;
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  isFavorite: boolean;
+  onFavoriteToggle: () => void;
 }
 
 export default function LinkContextMenu({
   open,
   contextMenu,
-  link: _link, // required by interface; parent uses contextMenu.link
   onClose,
   onEdit,
   onDelete,
+  isFavorite,
+  onFavoriteToggle,
 }: LinkContextMenuProps) {
   const handleEdit = () => {
     onEdit();
@@ -27,6 +29,11 @@ export default function LinkContextMenu({
 
   const handleDelete = () => {
     onDelete();
+    onClose();
+  };
+
+  const handleFavorite = () => {
+    onFavoriteToggle();
     onClose();
   };
 
@@ -49,6 +56,16 @@ export default function LinkContextMenu({
           <Edit fontSize="small" />
         </ListItemIcon>
         Edit
+      </MenuItem>
+      <MenuItem onClick={handleFavorite}>
+        <ListItemIcon>
+          {isFavorite ? (
+            <Star fontSize="small" />
+          ) : (
+            <StarBorder fontSize="small" />
+          )}
+        </ListItemIcon>
+        {isFavorite ? "Unfavorite" : "Favorite"}
       </MenuItem>
       <MenuItem onClick={handleDelete}>
         <ListItemIcon>

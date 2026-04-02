@@ -8,10 +8,13 @@ import {
   MenuItem,
   Select,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Edit from "@mui/icons-material/Edit";
 import Check from "@mui/icons-material/Check";
+import CalendarMonth from "@mui/icons-material/CalendarMonth";
+import Clear from "@mui/icons-material/Clear";
 import { useTasks } from "../../../../hooks/useTasks";
 import { useProjects } from "../../../../hooks/useProjects";
 import { useSnackbarContext } from "../../../../contexts/useSnackbarContext";
@@ -22,6 +25,31 @@ import QuestionsSection from "./QuestionsSection";
 import LinksSection from "./LinksSection";
 import type { ProjectStatus } from "../../../../types/projects";
 import { getDisplayStatus } from "./projectStatusDisplay";
+import { formatProjectDeadlineRemaining } from "../../../../utils/projectDeadlineRemaining";
+import { endOfDay } from "../../../../utils/dateRangeFilter";
+
+function deadlineMsToDateInputValue(ms: number): string {
+  const d = new Date(ms);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+const deadlineFieldSx = {
+  minWidth: 168,
+  "& .MuiOutlinedInput-root": {
+    bgcolor: "var(--tasks-panel-bg)",
+    color: "var(--scratchpad-text)",
+    "& fieldset": { borderColor: "var(--scratchpad-separator)" },
+    "&:hover fieldset": { borderColor: "var(--projects-metric-color)" },
+    "&.Mui-focused fieldset": { borderColor: "var(--projects-metric-color)" },
+  },
+  "& .MuiInputLabel-root": {
+    color: "var(--scratchpad-text-muted)",
+    "&.Mui-focused": { color: "var(--projects-metric-color)" },
+  },
+} as const;
 
 export default function Projects() {
   const {
@@ -44,9 +72,12 @@ export default function Projects() {
     addLink,
     updateLink,
     deleteLink,
+    isLinkTracked,
+    toggleTrackedLink,
     updateProjectName,
     updateProjectDescription,
     updateProjectStatus,
+    updateProjectDeadline,
   } = useProjects();
   const { showSnackbar } = useSnackbarContext();
   const { projectId } = useParams<{ projectId: string }>();
@@ -55,11 +86,16 @@ export default function Projects() {
     () => projects.find((p) => p.id === selectedProjectId),
     [projects, selectedProjectId],
   );
+  const deadlineCountdownLabel =
+    selectedProject?.deadlineOn != null
+      ? formatProjectDeadlineRemaining(selectedProject.deadlineOn)
+      : null;
   const [isHeaderHovered, setIsHeaderHovered] = useState(false);
   const [editingField, setEditingField] = useState<
     "name" | "description" | null
   >(null);
   const [errorText, setErrorText] = useState<string | null>(null);
+  const [editingDeadline, setEditingDeadline] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const descRef = useRef<HTMLInputElement>(null);
 
@@ -336,61 +372,144 @@ export default function Projects() {
                 </Typography>
               ) : null}
 
-              <FormControl
-                size="small"
+              <Box
                 sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  gap: 2,
                   mt: 1.5,
-                  minWidth: 180,
-                  "& .MuiInputLabel-root": {
-                    color: "var(--scratchpad-text-muted)",
-                    "&.Mui-focused": { color: "var(--projects-metric-color)" },
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    bgcolor: "var(--tasks-panel-bg)",
-                    color: "var(--scratchpad-text)",
-                    "& fieldset": { borderColor: "var(--scratchpad-separator)" },
-                    "&:hover fieldset": { borderColor: "var(--projects-metric-color)" },
-                    "&.Mui-focused fieldset": { borderColor: "var(--projects-metric-color)" },
-                  },
-                  "& .MuiSvgIcon-root": { color: "var(--scratchpad-text-muted)" },
                 }}
               >
-                <InputLabel id="project-status-label">Status</InputLabel>
-                <Select<ProjectStatus>
-                  labelId="project-status-label"
-                  label="Status"
-                  value={getDisplayStatus(selectedProject.status)}
-                  onChange={(e) =>
-                    updateProjectStatus(
-                      selectedProjectId,
-                      e.target.value as ProjectStatus,
-                    )
-                  }
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        bgcolor: "var(--tasks-panel-bg)",
-                        color: "var(--scratchpad-text)",
-                        border: "1px solid var(--scratchpad-separator)",
-                        "& .MuiMenuItem-root:hover": {
-                          bgcolor: "var(--tasks-highlight-bg)",
-                        },
-                        "& .MuiMenuItem-root.Mui-selected": {
-                          bgcolor: "rgba(15, 166, 242, 0.15)",
-                        },
-                        "& .MuiMenuItem-root.Mui-selected:hover": {
-                          bgcolor: "var(--tasks-highlight-bg)",
-                        },
-                      },
+                <FormControl
+                  size="small"
+                  sx={{
+                    minWidth: 180,
+                    "& .MuiInputLabel-root": {
+                      color: "var(--scratchpad-text-muted)",
+                      "&.Mui-focused": { color: "var(--projects-metric-color)" },
                     },
+                    "& .MuiOutlinedInput-root": {
+                      bgcolor: "var(--tasks-panel-bg)",
+                      color: "var(--scratchpad-text)",
+                      "& fieldset": { borderColor: "var(--scratchpad-separator)" },
+                      "&:hover fieldset": { borderColor: "var(--projects-metric-color)" },
+                      "&.Mui-focused fieldset": { borderColor: "var(--projects-metric-color)" },
+                    },
+                    "& .MuiSvgIcon-root": { color: "var(--scratchpad-text-muted)" },
                   }}
                 >
-                  <MenuItem value="Open">Open</MenuItem>
-                  <MenuItem value="Close">Close</MenuItem>
-                  <MenuItem value="Paused">Paused</MenuItem>
-                  <MenuItem value="Blocked">Blocked</MenuItem>
-                </Select>
-              </FormControl>
+                  <InputLabel id="project-status-label">Status</InputLabel>
+                  <Select<ProjectStatus>
+                    labelId="project-status-label"
+                    label="Status"
+                    value={getDisplayStatus(selectedProject.status)}
+                    onChange={(e) =>
+                      updateProjectStatus(
+                        selectedProjectId,
+                        e.target.value as ProjectStatus,
+                      )
+                    }
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          bgcolor: "var(--tasks-panel-bg)",
+                          color: "var(--scratchpad-text)",
+                          border: "1px solid var(--scratchpad-separator)",
+                          "& .MuiMenuItem-root:hover": {
+                            bgcolor: "var(--tasks-highlight-bg)",
+                          },
+                          "& .MuiMenuItem-root.Mui-selected": {
+                            bgcolor: "rgba(15, 166, 242, 0.15)",
+                          },
+                          "& .MuiMenuItem-root.Mui-selected:hover": {
+                            bgcolor: "var(--tasks-highlight-bg)",
+                          },
+                        },
+                      },
+                    }}
+                  >
+                    <MenuItem value="Open">Open</MenuItem>
+                    <MenuItem value="Close">Close</MenuItem>
+                    <MenuItem value="Paused">Paused</MenuItem>
+                    <MenuItem value="Blocked">Blocked</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {selectedProject.deadlineOn == null || editingDeadline ? (
+                  <TextField
+                    label="Deadline"
+                    type="date"
+                    size="small"
+                    value={
+                      selectedProject.deadlineOn != null
+                        ? deadlineMsToDateInputValue(selectedProject.deadlineOn)
+                        : ""
+                    }
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      const parts = v.split("-").map(Number);
+                      const y = parts[0];
+                      const mo = parts[1];
+                      const d = parts[2];
+                      if (y == null || mo == null || d == null) return;
+                      updateProjectDeadline(
+                        selectedProjectId,
+                        endOfDay(new Date(y, mo - 1, d)).getTime(),
+                      );
+                      setEditingDeadline(false);
+                    }}
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    sx={deadlineFieldSx}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color:
+                          deadlineCountdownLabel === "Overdue"
+                            ? "var(--projects-error-color)"
+                            : "var(--projects-metric-color)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {deadlineCountdownLabel}
+                    </Typography>
+                    <Tooltip title="Change deadline">
+                      <IconButton
+                        size="small"
+                        onClick={() => setEditingDeadline(true)}
+                        sx={{ color: "var(--scratchpad-text-muted)" }}
+                        aria-label="Change deadline"
+                      >
+                        <CalendarMonth fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Clear deadline">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          updateProjectDeadline(selectedProjectId, undefined);
+                          setEditingDeadline(false);
+                        }}
+                        sx={{ color: "var(--scratchpad-text-muted)" }}
+                        aria-label="Clear deadline"
+                      >
+                        <Clear fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )}
+              </Box>
             </Box>
           </>
         ) : null}
@@ -424,6 +543,8 @@ export default function Projects() {
                 deleteLink(selectedProjectId, id);
                 showSnackbar("success", "Link deleted");
               }}
+              isLinkTracked={isLinkTracked}
+              onToggleLinkTracked={toggleTrackedLink}
             />
             <BlockersSection
               blockers={selectedProject.blockers}

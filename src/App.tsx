@@ -1,9 +1,14 @@
 import './App.css'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useParams } from 'react-router-dom'
 import { SnackbarProviderWrapper } from './contexts/SnackbarContext'
 import Dashboard from './Dashboard'
 import { ScratchPad } from './components/Main/Activities/ScratchPad'
 import { Projects, ProjectHome } from './components/Main/Activities/Projects'
+
+function ProjectsRoute() {
+  const { projectId } = useParams<{ projectId: string }>()
+  return <Projects key={projectId} />
+}
 
 function App() {
   return (
@@ -13,7 +18,7 @@ function App() {
         <Route path="scratchpad" element={<ScratchPad />} />
         <Route path="projects">
           <Route index element={<ProjectHome />} />
-          <Route path=":projectId" element={<Projects />} />
+          <Route path=":projectId" element={<ProjectsRoute />} />
         </Route>
       </Route>
     </Routes>

@@ -1,11 +1,16 @@
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@mui/material'
 
 export default function CreateNew() {
+  const navigate = useNavigate()
+
   return (
     <Button
       fullWidth
       variant="contained"
-      onClick={() => {}}
+      onClick={() =>
+        navigate('/projects', { state: { openCreateProject: true } })
+      }
       sx={{
         mt: 'auto',
         py: 1.25,
@@ -20,7 +25,7 @@ export default function CreateNew() {
         },
       }}
     >
-      + New Task
+      + New
     </Button>
   )
 }
