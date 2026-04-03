@@ -1,4 +1,5 @@
 import MonacoEditor from '@monaco-editor/react'
+import { APP_CONTENT_FONT_WEIGHT, APP_FONT_FAMILY } from '../../../../styles/appFont'
 
 export interface EditorProps {
   value: string
@@ -18,7 +19,8 @@ export default function ScratchPadEditor({ value, onChange, wordWrap = false }: 
         lineNumbers: 'on',
         minimap: { enabled: false },
         fontSize: 13,
-        fontFamily: '"Courier New", Consolas, Monaco, monospace',
+        fontFamily: APP_FONT_FAMILY,
+        fontWeight: String(APP_CONTENT_FONT_WEIGHT),
         scrollBeyondLastLine: false,
         padding: { top: 16 },
         renderLineHighlight: 'all',

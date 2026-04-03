@@ -1,4 +1,5 @@
 import { Box, TextField } from '@mui/material'
+import { APP_FONT_FAMILY } from '../../styles/appFont'
 
 const SEARCHBAR_HEIGHT = 65
 
@@ -34,7 +35,7 @@ export default function SearchBar() {
                 <Box
                 component="span"
                 sx={{
-                  fontFamily: '"SF Mono", Consolas, Monaco, monospace',
+                  fontFamily: APP_FONT_FAMILY,
                   fontSize: 13,
                   color: 'var(--scratchpad-text-muted)',
                   backgroundColor: 'var(--searchbar-shortcut-bg)',

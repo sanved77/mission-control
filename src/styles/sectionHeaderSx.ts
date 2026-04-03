@@ -1,6 +1,7 @@
-/** Monospace stack aligned with Today page body copy */
-export const SECTION_HEADER_FONT_STACK =
-  '"SF Mono", "Fira Code", "Cascadia Code", monospace'
+import { APP_FONT_FAMILY } from './appFont'
+
+/** Same as main app body (Cascadia Code) */
+export const SECTION_HEADER_FONT_STACK = APP_FONT_FAMILY
 
 /** Single source of truth for section header font size (Today, project pages, etc.) */
 export const SECTION_HEADER_FONT_SIZE = '15px'

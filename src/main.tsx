@@ -1,4 +1,9 @@
-import '@fontsource/inter'
+import '@fontsource/cascadia-code'
+import '@fontsource/cascadia-code/300.css'
+import '@fontsource/cascadia-code/500.css'
+import '@fontsource/cascadia-code/600.css'
+import '@fontsource/cascadia-code/700.css'
+import { APP_CONTENT_FONT_WEIGHT, APP_FONT_FAMILY } from './styles/appFont'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
@@ -21,7 +26,9 @@ if (import.meta.env.DEV) {
 
 const theme = createTheme({
   typography: {
-    fontFamily: '"Inter", sans-serif',
+    fontFamily: APP_FONT_FAMILY,
+    fontWeightLight: APP_CONTENT_FONT_WEIGHT,
+    fontWeightRegular: APP_CONTENT_FONT_WEIGHT,
   },
 })
 

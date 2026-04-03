@@ -2,7 +2,9 @@ html,
 body {
   margin: 0;
   height: 100%;
-  font-family: 'Inter', sans-serif;
+  /* Match src/styles/appFont.ts (APP_FONT_FAMILY + APP_CONTENT_FONT_WEIGHT) */
+  font-family: 'Cascadia Code', monospace;
+  font-weight: 300;
 }
 
 /* Resize handle: full-height vertical strip only, no default diagonal graphic */

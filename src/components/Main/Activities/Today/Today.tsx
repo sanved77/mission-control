@@ -27,9 +27,10 @@ import { openLink } from '../../../../utils/openLink'
 import type { Task, Project } from '../../../../types/projects'
 import SectionTitle from '../../../shared/SectionTitle'
 import { cardSx } from '../../../../styles/cardSx'
+import { APP_FONT_FAMILY } from '../../../../styles/appFont'
 import { SECTION_HEADER_COLORS } from '../../../../styles/sectionHeaderSx'
 
-const MONO = '"SF Mono", "Fira Code", "Cascadia Code", monospace'
+const MONO = APP_FONT_FAMILY
 
 const STATUS_COLORS: Record<string, string> = {
   Open: '#22c55e',
