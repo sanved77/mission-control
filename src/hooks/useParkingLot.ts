@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ParkingItem } from '../types/today'
 import { getProjectColor } from '../utils/projectColor'
+import { storageEvents } from '../utils/storageEvents'
 
 const STORAGE_KEY = 'parkingLot'
 
@@ -42,6 +43,7 @@ export function useParkingLot() {
       color: getProjectColor(id),
     }
     setItems((prev) => [...prev, item])
+    storageEvents.publish({ type: 'parking-added', content: { id, contentType: 'parkingLot' }, timestamp: Date.now(), contentText: trimmed })
   }, [])
 
   return { items, addItem }

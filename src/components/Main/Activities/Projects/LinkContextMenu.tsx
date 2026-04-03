@@ -1,11 +1,15 @@
 import { ListItemIcon, Menu, MenuItem } from "@mui/material";
+import AdsClick from "@mui/icons-material/AdsClick";
 import Delete from "@mui/icons-material/Delete";
 import Edit from "@mui/icons-material/Edit";
 import Star from "@mui/icons-material/Star";
 import StarBorder from "@mui/icons-material/StarBorder";
+
 export interface LinkContextMenuProps {
   open: boolean;
   contextMenu: { mouseX: number; mouseY: number } | null;
+  /** Total visits / clicks recorded for this link */
+  visitCount: number;
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -16,6 +20,7 @@ export interface LinkContextMenuProps {
 export default function LinkContextMenu({
   open,
   contextMenu,
+  visitCount,
   onClose,
   onEdit,
   onDelete,
@@ -73,6 +78,22 @@ export default function LinkContextMenu({
         </ListItemIcon>
         Delete
       </MenuItem>
+      <MenuItem
+        disabled
+        sx={{
+          cursor: "default",
+          "&.Mui-disabled": {
+            opacity: 1,
+            color: "var(--scratchpad-text-muted)",
+          },
+        }}
+      >
+        <ListItemIcon sx={{ minWidth: 36, color: "var(--scratchpad-text-muted)" }}>
+          <AdsClick fontSize="small" />
+        </ListItemIcon>
+        {visitCount} {visitCount === 1 ? "click" : "clicks"}
+      </MenuItem>
     </Menu>
+    
   );
 }

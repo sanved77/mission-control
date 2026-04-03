@@ -9,23 +9,25 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material'
-import RocketLaunch from '@mui/icons-material/RocketLaunch'
-import CheckCircleOutline from '@mui/icons-material/CheckCircleOutline'
 import ErrorOutline from '@mui/icons-material/ErrorOutline'
 import HelpOutline from '@mui/icons-material/HelpOutline'
-import LinkIcon from '@mui/icons-material/Link'
+import { getLinkTypeConfig } from '../../../../utils/linkTypeConfig'
 import Add from '@mui/icons-material/Add'
 import { NavLink } from 'react-router-dom'
 import { useToday } from '../../../../hooks/useToday'
 import { useParkingLot } from '../../../../hooks/useParkingLot'
 import { useTasks } from '../../../../hooks/useTasks'
 import { useProjects } from '../../../../hooks/useProjects'
+import { useBlockers } from '../../../../hooks/useBlockers'
 import { readTrackedProjectsSnapshot } from '../../../../utils/trackedProjectsSnapshot'
 import { getProjectColor } from '../../../../utils/projectColor'
 import { getProjectCompletion } from '../../../../utils/projectCompletion'
 import { formatProjectDeadlineRemaining } from '../../../../utils/projectDeadlineRemaining'
 import { openLink } from '../../../../utils/openLink'
 import type { Task, Project } from '../../../../types/projects'
+import SectionTitle from '../../../shared/SectionTitle'
+import { cardSx } from '../../../../styles/cardSx'
+import { SECTION_HEADER_COLORS } from '../../../../styles/sectionHeaderSx'
 
 const MONO = '"SF Mono", "Fira Code", "Cascadia Code", monospace'
 
@@ -87,37 +89,7 @@ function relativeTime(iso: string): string {
   return `Captured ${days}d ago`
 }
 
-/* ---------- Section title ---------- */
-
-function SectionTitle({ children, color }: { children: React.ReactNode; color: string }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-      <Typography
-        sx={{
-          fontSize: '0.65rem',
-          fontWeight: 700,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          color,
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {children}
-      </Typography>
-      <Box sx={{ flex: 1, height: '1px', background: color, opacity: 0.25 }} />
-    </Box>
-  )
-}
-
 /* ---------- Card shell ---------- */
-
-const cardSx = {
-  background: '#161b22',
-  borderRadius: '14px',
-  border: '1px solid rgba(255,255,255,0.06)',
-  p: 2.5,
-  mb: 2.5,
-} as const
 
 /* ---------- Day Progress Ring (SVG) ---------- */
 
@@ -230,31 +202,46 @@ function FocusCard({
         ...cardSx,
         borderColor: '#1f6feb',
         borderWidth: 1.5,
+        position: 'relative',
+        pt: 3,
       }}
     >
-      <SectionTitle color="#58a6ff">Focus — Next Up</SectionTitle>
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
-        <RocketLaunch sx={{ color: '#58a6ff', mt: 0.3, fontSize: 20 }} />
-        <Box>
-          <Typography sx={{ color: '#e6edf3', fontWeight: 600, fontSize: '0.95rem' }}>
-            {task.content}
-          </Typography>
-          {project && (
-            <Typography
-              component={NavLink}
-              to={`/projects/${project.id}`}
-              sx={{
-                color: getProjectColor(project.id),
-                fontSize: '0.75rem',
-                textDecoration: 'none',
-                '&:hover': { textDecoration: 'underline' },
-              }}
-            >
-              {project.projectName}
-            </Typography>
-          )}
-        </Box>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: -9,
+          left: 14,
+          bgcolor: '#1f6feb',
+          color: '#fff',
+          fontSize: '0.625rem',
+          fontWeight: 700,
+          letterSpacing: '1px',
+          textTransform: 'uppercase',
+          px: 1.25,
+          py: 0.25,
+          borderRadius: '4px',
+          lineHeight: 1.6,
+        }}
+      >
+        Focus — Next Up
       </Box>
+      <Typography sx={{ color: '#e6edf3', fontWeight: 600, fontSize: '0.95rem', mb: 0.5 }}>
+        {task.content}
+      </Typography>
+      {project && (
+        <Typography
+          component={NavLink}
+          to={`/projects/${project.id}`}
+          sx={{
+            color: getProjectColor(project.id),
+            fontSize: '0.75rem',
+            textDecoration: 'none',
+            '&:hover': { textDecoration: 'underline' },
+          }}
+        >
+          {project.projectName}
+        </Typography>
+      )}
     </Box>
   )
 }
@@ -276,8 +263,9 @@ function TodaysPlan() {
   )
 
   return (
+    <>
+    <SectionTitle color={SECTION_HEADER_COLORS.todaysPlan}>Today's Plan</SectionTitle>
     <Box sx={cardSx}>
-      <SectionTitle color="#facc15">Today's Plan</SectionTitle>
       <TextField
         placeholder="Add an item..."
         fullWidth
@@ -324,6 +312,7 @@ function TodaysPlan() {
         </Box>
       ))}
     </Box>
+    </>
   )
 }
 
@@ -331,6 +320,7 @@ function TodaysPlan() {
 
 function TrackedProjectsSection({ tasks }: { tasks: Task[] }) {
   const [trackedProjects, setTrackedProjects] = useState(readTrackedProjectsSnapshot)
+  const { blockers: allBlockers } = useBlockers()
 
   useEffect(() => {
     const onUpdate = () => setTrackedProjects(readTrackedProjectsSnapshot())
@@ -346,22 +336,28 @@ function TrackedProjectsSection({ tasks }: { tasks: Task[] }) {
 
   if (trackedProjects.length === 0) {
     return (
-      <Box sx={cardSx}>
-        <SectionTitle color="#22d3ee">Tracked Projects</SectionTitle>
-        <Typography sx={{ color: '#484f58', fontSize: '0.8rem', fontStyle: 'italic' }}>
-          Pin projects to see them here
-        </Typography>
-      </Box>
+      <>
+        <SectionTitle color={SECTION_HEADER_COLORS.trackedProjects}>Tracked Projects</SectionTitle>
+        <Box sx={cardSx}>
+          <Typography sx={{ color: '#484f58', fontSize: '0.8rem', fontStyle: 'italic' }}>
+            Pin projects to see them here
+          </Typography>
+        </Box>
+      </>
     )
   }
 
   return (
+    <>
+    <SectionTitle color={SECTION_HEADER_COLORS.trackedProjects}>Tracked Projects</SectionTitle>
     <Box sx={cardSx}>
-      <SectionTitle color="#22d3ee">Tracked Projects</SectionTitle>
       {trackedProjects.map((project) => {
         const { completed, total } = getProjectCompletion(tasks, project.id, taskMap)
         const pct = total === 0 ? 0 : Math.round((completed / total) * 100)
-        const activeBlockers = project.blockers.filter((b) => !b.dismissed).length
+        const activeBlockers = project.blockers.filter((bid) => {
+          const b = allBlockers.find((x) => x.id === bid)
+          return b != null && b.dismissedOn == null
+        }).length
         const color = getProjectColor(project.id)
 
         return (
@@ -437,13 +433,13 @@ function TrackedProjectsSection({ tasks }: { tasks: Task[] }) {
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               {activeBlockers > 0 && (
                 <Typography sx={{ fontSize: '0.7rem', color: '#f85149', display: 'flex', alignItems: 'center', gap: 0.3 }}>
-                  <ErrorOutline sx={{ fontSize: 13 }} />
+                  <ErrorOutline sx={{ fontSize: 15 }} />
                   {activeBlockers} blocker{activeBlockers > 1 ? 's' : ''}
                 </Typography>
               )}
               {project.questions.length > 0 && (
                 <Typography sx={{ fontSize: '0.7rem', color: '#d29922', display: 'flex', alignItems: 'center', gap: 0.3 }}>
-                  <HelpOutline sx={{ fontSize: 13 }} />
+                  <HelpOutline sx={{ fontSize: 15 }} />
                   {project.questions.length} question{project.questions.length > 1 ? 's' : ''}
                 </Typography>
               )}
@@ -457,14 +453,19 @@ function TrackedProjectsSection({ tasks }: { tasks: Task[] }) {
         )
       })}
     </Box>
+    </>
   )
 }
 
 /* ---------- BlockerQuestionStats ---------- */
 
 function BlockerQuestionStats({ projects }: { projects: Project[] }) {
+  const { blockers: allBlockers } = useBlockers()
   const totalBlockers = projects.reduce(
-    (acc, p) => acc + p.blockers.filter((b) => !b.dismissed).length,
+    (acc, p) => acc + p.blockers.filter((bid) => {
+      const b = allBlockers.find((x) => x.id === bid)
+      return b != null && b.dismissedOn == null
+    }).length,
     0,
   )
   const totalQuestions = projects.reduce((acc, p) => acc + p.questions.length, 0)
@@ -481,7 +482,7 @@ function BlockerQuestionStats({ projects }: { projects: Project[] }) {
           py: 2,
         }}
       >
-        <ErrorOutline sx={{ color: '#f85149', fontSize: 22 }} />
+        <ErrorOutline sx={{ color: '#f85149', fontSize: 26 }} />
         <Box>
           <Typography sx={{ fontFamily: MONO, fontSize: '1.2rem', fontWeight: 700, color: '#f85149' }}>
             {totalBlockers}
@@ -499,7 +500,7 @@ function BlockerQuestionStats({ projects }: { projects: Project[] }) {
           py: 2,
         }}
       >
-        <HelpOutline sx={{ color: '#d29922', fontSize: 22 }} />
+        <HelpOutline sx={{ color: '#d29922', fontSize: 26 }} />
         <Box>
           <Typography sx={{ fontFamily: MONO, fontSize: '1.2rem', fontWeight: 700, color: '#d29922' }}>
             {totalQuestions}
@@ -524,31 +525,36 @@ function ContextLinks({ projects, incrementLinkVisits }: { projects: Project[]; 
   if (links.length === 0) return null
 
   return (
+    <>
+    <SectionTitle color={SECTION_HEADER_COLORS.contextLinks}>Context Links</SectionTitle>
     <Box sx={cardSx}>
-      <SectionTitle color="#facc15">Context Links</SectionTitle>
-      {links.map((link) => (
-        <Box
-          key={link.id}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            py: 0.6,
-            cursor: 'pointer',
-            '&:hover': { opacity: 0.8 },
-          }}
-          onClick={() => openLink(link.id, link.url, incrementLinkVisits)}
-        >
-          <LinkIcon sx={{ fontSize: 15, color: '#8b949e' }} />
-          <Typography sx={{ fontSize: '0.82rem', color: '#58a6ff', flex: 1 }}>
-            {link.label}
-          </Typography>
-          <Typography sx={{ fontSize: '0.65rem', color: '#484f58' }}>
-            {link.projectName}
-          </Typography>
-        </Box>
-      ))}
+      {links.map((link) => {
+        const { Icon, iconColor } = getLinkTypeConfig(link.type)
+        return (
+          <Box
+            key={link.id}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              py: 0.6,
+              cursor: 'pointer',
+              '&:hover': { opacity: 0.8 },
+            }}
+            onClick={() => openLink(link.id, link.url, incrementLinkVisits)}
+          >
+            <Icon sx={{ fontSize: 18, color: iconColor }} />
+            <Typography sx={{ fontSize: '0.82rem', color: '#58a6ff', flex: 1 }}>
+              {link.label}
+            </Typography>
+            <Typography sx={{ fontSize: '0.65rem', color: '#484f58' }}>
+              {link.projectName}
+            </Typography>
+          </Box>
+        )
+      })}
     </Box>
+    </>
   )
 }
 
@@ -569,8 +575,9 @@ function ParkingLotSection() {
   )
 
   return (
+    <>
+    <SectionTitle color={SECTION_HEADER_COLORS.parkingLot}>Parking Lot</SectionTitle>
     <Box sx={cardSx}>
-      <SectionTitle color="#a78bfa">Parking Lot</SectionTitle>
       <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
         <TextField
           placeholder="Quick thought..."
@@ -638,6 +645,7 @@ function ParkingLotSection() {
         </Box>
       ))}
     </Box>
+    </>
   )
 }
 
@@ -667,12 +675,6 @@ export default function Today() {
     [projects, trackedProjectIds],
   )
 
-  const taskMap = useMemo(() => {
-    const m = new Map<string, Task>()
-    tasks.forEach((t) => m.set(t.id, t))
-    return m
-  }, [tasks])
-
   const completedToday = useMemo(() => {
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
@@ -699,7 +701,7 @@ export default function Today() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr 340px',
+          gridTemplateColumns: '1fr 380px',
           gap: '20px',
           alignItems: 'start',
         }}

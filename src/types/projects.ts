@@ -8,9 +8,18 @@ export type LinkObj = {
   visits: number
 }
 
-export interface BlockerEntry {
+export interface Blocker {
+  id: string
   text: string
-  dismissed?: boolean
+  projectId: string
+  dismissedOn?: number
+}
+
+export interface Question {
+  id: string
+  text: string
+  projectId: string
+  resolvedOn?: number
 }
 
 export interface Task {
@@ -28,7 +37,7 @@ export interface Project {
   id: string
   projectName: string
   description: string
-  blockers: BlockerEntry[]
+  blockers: string[]
   questions: string[]
   links: LinkObj[]
   createdOn: number

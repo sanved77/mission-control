@@ -5,10 +5,11 @@ import { ResizableBox, type ResizeCallbackData } from 'react-resizable'
 import Sidebar from './components/Sidebar'
 import Main from './components/Main'
 import LogBoard from './components/LogBoard'
+import { useLogWriter } from './hooks/useLogWriter'
 
 const MIN_SIDEBAR = 250
 const MIN_MAIN = 700
-const MIN_LOGBOARD = 350
+const MIN_LOGBOARD = 450
 
 function createResizeHandle() {
   return (handleAxis: string, ref: Ref<HTMLElement>) => (
@@ -30,6 +31,7 @@ function createResizeHandle() {
 const ResizeHandle = createResizeHandle()
 
 export default function Dashboard() {
+  useLogWriter()
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1200

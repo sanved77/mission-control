@@ -33,6 +33,12 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useProjects } from "../../../../hooks/useProjects";
 import { useTasks } from "../../../../hooks/useTasks";
+import { useBlockers } from "../../../../hooks/useBlockers";
+import {
+  SECTION_HEADER_COLORS,
+  sectionHeaderRowSx,
+  sectionHeaderTypographySx,
+} from "../../../../styles/sectionHeaderSx";
 import { useSnackbarContext } from "../../../../contexts/useSnackbarContext";
 import type { Project, ProjectStatus } from "../../../../types/projects";
 import { getProjectCompletion } from "../../../../utils/projectCompletion";
@@ -55,9 +61,6 @@ function formatCreatedOn(ms: number): string {
   }).format(new Date(ms));
 }
 
-function activeBlockerCount(project: Project): number {
-  return project.blockers.filter((b) => !b.dismissed).length;
-}
 
 type ProjectsLocationState = { openCreateProject?: boolean } | null;
 
@@ -73,6 +76,7 @@ export default function ProjectHome() {
     createProject,
   } = useProjects();
   const { showSnackbar } = useSnackbarContext();
+  const { blockers: allBlockers } = useBlockers();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -219,35 +223,15 @@ export default function ProjectHome() {
 
       {/* Tracked projects */}
       <Box sx={{ mb: 4 }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            mb: 1.5,
-          }}
-        >
+        <Box sx={sectionHeaderRowSx}>
           <Typography
             sx={{
-              fontSize: 20,
-              fontFamily: '"Inter", sans-serif',
-              fontWeight: 900,
-              letterSpacing: "-0.05em",
-              textTransform: "uppercase",
-              color: "var(--projects-metric-color)",
+              ...sectionHeaderTypographySx,
+              color: SECTION_HEADER_COLORS.trackedProjectsHome,
             }}
           >
             Tracked projects
           </Typography>
-          <Box
-            sx={{
-              flex: 1,
-              opacity: 0.5,
-              height: "0.5px",
-              backgroundColor: "var(--projects-metric-color)",
-              minWidth: 8,
-            }}
-          />
         </Box>
 
         {trackedProjectsList.length === 0 ? (
@@ -271,7 +255,12 @@ export default function ProjectHome() {
               );
               const percent =
                 total > 0 ? Math.round((completed / total) * 100) : 0;
-              const blockers = activeBlockerCount(project);
+              const blockers = project.blockers.filter(
+                (bid) => {
+                  const b = allBlockers.find((x) => x.id === bid);
+                  return b != null && b.dismissedOn == null;
+                }
+              ).length;
               const qCount = project.questions.length;
               const deadlineLabel =
                 project.deadlineOn != null
@@ -469,35 +458,15 @@ export default function ProjectHome() {
       </Box>
 
       {/* Default list */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          mb: 1.5,
-        }}
-      >
+      <Box sx={sectionHeaderRowSx}>
         <Typography
           sx={{
-            fontSize: 20,
-            fontFamily: '"Inter", sans-serif',
-            fontWeight: 900,
-            letterSpacing: "-0.05em",
-            textTransform: "uppercase",
-            color: "#FACC15",
+            ...sectionHeaderTypographySx,
+            color: SECTION_HEADER_COLORS.allProjectsHome,
           }}
         >
           All projects
         </Typography>
-        <Box
-          sx={{
-            flex: 1,
-            opacity: 0.5,
-            height: "0.5px",
-            backgroundColor: "#FACC15",
-            minWidth: 8,
-          }}
-        />
       </Box>
 
       <Box

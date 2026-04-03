@@ -25,6 +25,11 @@ import { useTaskActions } from "./useTaskActions";
 import { TaskAddModeContext } from "./TaskAddModeContext";
 import AddTaskInput from "./AddTaskInput";
 import TaskItem, { TASK_TYPE } from "./TaskItem";
+import {
+  SECTION_HEADER_COLORS,
+  sectionHeaderRowSx,
+  sectionHeaderTypographySx,
+} from "../../../../styles/sectionHeaderSx";
 
 function getRootTasks(tasks: Task[], projectId: string): Task[] {
   const projectIds = getProjectTaskIds(tasks, projectId);
@@ -183,22 +188,15 @@ export default function TasksPanel({ tasks, projectId }: TasksPanelProps) {
       >
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
+            ...sectionHeaderRowSx,
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: 1,
-            mb: 1,
           }}
         >
           <Typography
             sx={{
-              fontSize: 20,
-              fontFamily: '"Inter", sans-serif',
-              fontWeight: 900,
-              letterSpacing: "-0.05em",
-              textTransform: "uppercase",
-              color: "var(--color-on-accent)",
+              ...sectionHeaderTypographySx,
+              color: SECTION_HEADER_COLORS.tasks,
             }}
           >
             Tasks

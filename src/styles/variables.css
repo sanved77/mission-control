@@ -13,16 +13,13 @@
   --resize-handle-hover: rgba(255, 255, 255, 0.08);
 
   /* SearchBar */
-  --searchbar-shortcut-bg: #363d48;
+  --searchbar-shortcut-bg: #21262d;
 
   /* Layout */
-  --main-content-bg: #1e2128;
-  --logboard-bg: #7ba37b;
+  --main-content-bg: #0d1117;
+  --logboard-bg: #0d1117;
 
   /* Favorites */
-  --favorite-color-1: #00a3ff;
-  --favorite-color-2: #7c4dff;
-  --favorite-color-3: #00bfa5;
 
   --sidebar-bg: #091113;
   --sidebar-text: #e0e6f0;
@@ -32,19 +29,19 @@
   --sidebar-heading: #ffffff;
 
   /* ScratchPad / editor theme */
-  --scratchpad-toolbar-bg: #0F1C22;
-  --scratchpad-editor-bg: #0F1C22;
+  --scratchpad-toolbar-bg: #0d1117;
+  --scratchpad-editor-bg: #0d1117;
   --scratchpad-btn-primary-bg: #007acc;
   --scratchpad-btn-primary-text: #ffffff;
-  --scratchpad-text: #e0e0e0;
-  --scratchpad-text-muted: #a0a0a0;
+  --scratchpad-text: #e6edf3;
+  --scratchpad-text-muted: #8b949e;
   --scratchpad-line-number: #858585;
-  --scratchpad-separator: #3c3c3c;
+  --scratchpad-separator: #30363d;
   --scratchpad-btn-clear: #c75c5c;
-  --scratchpad-footer-bg: #0F1C22;
+  --scratchpad-footer-bg: #0d1117;
 
   /* Projects screen */
-  --projects-bg: #0F1C22;
+  --projects-bg: #0d1117;
   --projects-metric-color: #0FA6F2;
   --projects-inactive: #1E293B;
   --projects-inactive-text: #94A3B8;
@@ -53,14 +50,14 @@
   --projects-error-color: #E67373;
 
   /* Blockers */
-  --blockers-item-bg: rgba(229, 115, 115, 0.15);
-  --blockers-item-border: rgba(229, 115, 115, 0.3);
+  --blockers-item-bg: rgba(248, 81, 73, 0.12);
+  --blockers-item-border: rgba(248, 81, 73, 0.25);
 
   /* Task checkboxes */
   --tasks-complete-color: #4caf50;
   --tasks-archived-color: #c9ac28;
-  --tasks-panel-bg: #15232B;
-  --tasks-highlight-bg: rgba(15, 166, 242, 0.18);
+  --tasks-panel-bg: #161b22;
+  --tasks-highlight-bg: rgba(56, 139, 253, 0.15);
 
   /* Link type icon colors */
   --link-type-telemetry: #4caf50;

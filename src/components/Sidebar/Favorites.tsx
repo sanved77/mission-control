@@ -244,6 +244,7 @@ export default function Favorites() {
       <LinkContextMenu
         open={contextMenu !== null}
         contextMenu={contextMenu}
+        visitCount={contextMenu?.link.visits ?? 0}
         onClose={handleCloseContextMenu}
         onEdit={handleEditFromMenu}
         onDelete={handleDeleteFromMenu}

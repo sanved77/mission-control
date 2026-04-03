@@ -17,6 +17,8 @@ import CalendarMonth from "@mui/icons-material/CalendarMonth";
 import Clear from "@mui/icons-material/Clear";
 import { useTasks } from "../../../../hooks/useTasks";
 import { useProjects } from "../../../../hooks/useProjects";
+import { useBlockers } from "../../../../hooks/useBlockers";
+import { useQuestions } from "../../../../hooks/useQuestions";
 import { useSnackbarContext } from "../../../../contexts/useSnackbarContext";
 import { TaskActionsProvider } from "./TaskActionsProvider";
 import TasksPanel from "./TasksPanel";
@@ -67,9 +69,8 @@ export default function Projects() {
   } = useTasks();
   const {
     projects,
-    setBlockerDismissed,
-    addBlocker,
-    addQuestion,
+    addBlockerIdToProject,
+    addQuestionIdToProject,
     addLink,
     updateLink,
     incrementLinkVisits,
@@ -81,6 +82,8 @@ export default function Projects() {
     updateProjectStatus,
     updateProjectDeadline,
   } = useProjects();
+  const { getBlockersForProject, addBlocker, dismissBlocker } = useBlockers();
+  const { getQuestionsForProject, addQuestion, resolveQuestion, unresolveQuestion } = useQuestions();
   const { showSnackbar } = useSnackbarContext();
   const { projectId } = useParams<{ projectId: string }>();
   const selectedProjectId = projectId ?? "";
@@ -550,20 +553,28 @@ export default function Projects() {
               onLinkClick={(id, url) => openLink(id, url, incrementLinkVisits)}
             />
             <BlockersSection
-              blockers={selectedProject.blockers}
-              onDismissBlocker={(i) =>
-                setBlockerDismissed(selectedProjectId, i)
-              }
+              blockers={getBlockersForProject(selectedProjectId)}
+              onDismissBlocker={(blockerId) => dismissBlocker(blockerId)}
               onAddBlocker={(text) => {
-                addBlocker(selectedProjectId, text);
+                const id = addBlocker(selectedProjectId, text);
+                addBlockerIdToProject(selectedProjectId, id);
                 showSnackbar("success", "Blocker added");
               }}
             />
             <QuestionsSection
-              questions={selectedProject.questions}
+              questions={getQuestionsForProject(selectedProjectId)}
               onAddQuestion={(text) => {
-                addQuestion(selectedProjectId, text);
+                const id = addQuestion(selectedProjectId, text);
+                addQuestionIdToProject(selectedProjectId, id);
                 showSnackbar("success", "Question added");
+              }}
+              onToggleResolved={(questionId) => {
+                const q = getQuestionsForProject(selectedProjectId).find((x) => x.id === questionId);
+                if (q?.resolvedOn != null) {
+                  unresolveQuestion(questionId);
+                } else {
+                  resolveQuestion(questionId);
+                }
               }}
             />
           </>

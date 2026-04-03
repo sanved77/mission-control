@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { Task } from '../types/projects'
 
 import { readTrackedStorage, writeTrackedTask } from '../utils/trackedStorage'
+import { storageEvents } from '../utils/storageEvents'
 
 const STORAGE_KEY = 'tasks'
 
@@ -195,6 +196,9 @@ export function useTasks(): {
   }, [trackedTaskId])
 
   const setTaskComplete = useCallback((taskId: string, isComplete: boolean, completeSubtasks: boolean = false) => {
+    if (isComplete) {
+      storageEvents.publish({ type: 'task-completed', content: { id: taskId, contentType: 'task' }, timestamp: Date.now() })
+    }
     setTasks((prev) => {
       const taskIds = [taskId];
       if (completeSubtasks) {
@@ -220,6 +224,7 @@ export function useTasks(): {
         projectID: projectId,
         subTasks: [],
       }
+      storageEvents.publish({ type: 'task-added', content: { id: newTask.id, contentType: 'task' }, timestamp: Date.now(), contentText: newTask.content })
       setTasks((prev) => {
         const next = [...prev, newTask]
         if (parentTaskId != null) {
