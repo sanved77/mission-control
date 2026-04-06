@@ -9,6 +9,7 @@ import Today from './components/Main/Activities/Today/Today'
 import { Settings } from './components/Main/Activities/Settings'
 import CommandPalette from './components/CommandPalette/CommandPalette'
 import { seedSearchIndex } from './search/seedSearchIndex'
+import SmallScreenGate from './components/SmallScreenGate'
 
 function ProjectsRoute() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -29,20 +30,22 @@ function App() {
   }, [])
 
   return (
-    <SnackbarProviderWrapper>
-    <CommandPalette />
-    <Routes>
-      <Route path="/" element={<Dashboard />}>
-        <Route index element={<Today />} />
-        <Route path="scratchpad" element={<ScratchPad />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="projects">
-          <Route index element={<ProjectHome />} />
-          <Route path=":projectId" element={<ProjectsRoute />} />
-        </Route>
-      </Route>
-    </Routes>
-    </SnackbarProviderWrapper>
+    <SmallScreenGate>
+      <SnackbarProviderWrapper>
+        <CommandPalette />
+        <Routes>
+          <Route path="/" element={<Dashboard />}>
+            <Route index element={<Today />} />
+            <Route path="scratchpad" element={<ScratchPad />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="projects">
+              <Route index element={<ProjectHome />} />
+              <Route path=":projectId" element={<ProjectsRoute />} />
+            </Route>
+          </Route>
+        </Routes>
+      </SnackbarProviderWrapper>
+    </SmallScreenGate>
   )
 }
 
