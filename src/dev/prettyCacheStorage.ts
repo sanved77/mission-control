@@ -103,7 +103,7 @@ export function applyPrettyCacheImport(data: PrettyCacheStorageExport): void {
     }
   }
   localStorage.setItem(USER_FULL_NAME_KEY, data.userFullName)
-  window.location.reload()
+  window.location.href = '/'
 }
 
 /**

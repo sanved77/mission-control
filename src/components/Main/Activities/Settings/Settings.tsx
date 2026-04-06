@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Box, Button, TextField, Typography } from '@mui/material'
 import {
   USER_FULL_NAME_KEY,
@@ -18,6 +18,16 @@ export default function Settings() {
   const [name, setName] = useState(
     () => localStorage.getItem(USER_FULL_NAME_KEY) ?? '',
   )
+
+  const storageUsed = useMemo(() => {
+    let totalSize = 0
+    for (const key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        totalSize += new Blob([key]).size + new Blob([localStorage[key]]).size
+      }
+    }
+    return (totalSize / 1024 / 1024).toFixed(2)
+  }, [])
 
   const persistName = useCallback(() => {
     const trimmed = name.trim()
@@ -124,6 +134,13 @@ export default function Settings() {
         <Typography sx={{ color: '#8b949e', fontSize: '0.75rem', mt: 2 }}>
           Import replaces stored data for this site and reloads the page. Use a file exported
           from this app (version 1).
+        </Typography>
+      </Box>
+
+      <Box sx={cardSx}>
+        <SectionTitle color={SECTION_HEADER_COLORS.allProjectsHome}>Storage usage</SectionTitle>
+        <Typography sx={{ color: 'var(--scratchpad-text)', fontSize: '0.875rem' }}>
+          Used: {storageUsed} MB
         </Typography>
       </Box>
     </Box>
